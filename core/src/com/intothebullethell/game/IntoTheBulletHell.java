@@ -1,31 +1,44 @@
 package com.intothebullethell.game;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.intothebullethell.game.screens.Play;
 
 public class IntoTheBulletHell extends Game {
-	SpriteBatch batch;
-	Texture img;
-	
+	private Texture customCursor;
+	 
 	@Override
 	public void create () {
-		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+		setScreen(new Play());
+		customCursor = new Texture(Gdx.files.internal("imagenes/crosshair.png"));
+        Pixmap pixmap = new Pixmap(Gdx.files.internal("imagenes/crosshair.png"));
+        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pixmap, 0, 0));
+        pixmap.dispose();
 	}
 
 	@Override
 	public void render () {
-		ScreenUtils.clear(1, 0, 0, 1);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
+		super.render();
+
 	}
 	
 	@Override
 	public void dispose () {
-		batch.dispose();
-		img.dispose();
+		super.dispose();
+		customCursor.dispose();
+	}
+	
+	public void resize(int width, int height) {
+		super.resize(width, height);
+	}
+	
+	public void pause() {
+		super.pause();
+	}
+	
+	public void resume() {
+		super.resume();
 	}
 }
