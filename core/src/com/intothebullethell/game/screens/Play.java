@@ -2,8 +2,10 @@ package com.intothebullethell.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -20,6 +22,7 @@ public class Play implements Screen {
 	private OrthographicCamera camera;
 	
 	private Player player;
+	private Texture crosshairTexture;
 
 	@Override
 	public void render(float delta) {
@@ -34,7 +37,8 @@ public class Play implements Screen {
 		
 		renderer.getBatch().begin();
 		player.draw(renderer.getBatch());
-		renderer.getBatch().end();
+		
+	    renderer.getBatch().end();
 	}
 
 	@Override
@@ -45,23 +49,30 @@ public class Play implements Screen {
 
 	@Override
 	public void show() {
-		map = new TmxMapLoader().load("mapas/mapa.tmx");
-		renderer = new OrthogonalTiledMapRenderer(map);
-		camera = new OrthographicCamera();
-		
-		// Carga las texturas para las diferentes direcciones
-		TextureRegion upSprite = new TextureRegion(new Texture("imagenes/upSprite.png"));
-		TextureRegion downSprite = new TextureRegion(new Texture("imagenes/downSprite.png"));
-		TextureRegion leftSprite = new TextureRegion(new Texture("imagenes/leftSprite.png"));
-		TextureRegion rightSprite = new TextureRegion(new Texture("imagenes/rightSprite.png"));
-		
-		// Crea el jugador con las texturas para las diferentes direcciones
-		player = new Player(new Sprite(downSprite), (TiledMapTileLayer) map.getLayers().get(0),new TextureRegion(upSprite), new TextureRegion(downSprite), new TextureRegion(leftSprite), new TextureRegion(rightSprite), camera);
-				
-		player.setPosition(15 * player.getCollisionLayer().getTileWidth(), 15 * player.getCollisionLayer().getHeight());
-				
-		Gdx.input.setInputProcessor(player);	
+	    map = new TmxMapLoader().load("mapas/mapa.tmx");
+	    renderer = new OrthogonalTiledMapRenderer(map);
+	    camera = new OrthographicCamera();
+	    
+	    // Carga las texturas para las diferentes direcciones
+	    TextureRegion upSprite = new TextureRegion(new Texture("imagenes/upSprite.png"));
+	    TextureRegion downSprite = new TextureRegion(new Texture("imagenes/downSprite.png"));
+	    TextureRegion leftSprite = new TextureRegion(new Texture("imagenes/leftSprite.png"));
+	    TextureRegion rightSprite = new TextureRegion(new Texture("imagenes/rightSprite.png"));
+	    
+	    // Crea el jugador con las texturas para las diferentes direcciones
+	    player = new Player(new Sprite(downSprite), (TiledMapTileLayer) map.getLayers().get(0), new TextureRegion(upSprite), new TextureRegion(downSprite), new TextureRegion(leftSprite), new TextureRegion(rightSprite), camera);
+	    player.setPosition(15 * player.getCollisionLayer().getTileWidth(), 15 * player.getCollisionLayer().getHeight());
+	    Gdx.input.setInputProcessor(player);
+	    
+	    // Configura el cursor personalizado
+	    Pixmap crosshairPixmap = new Pixmap(Gdx.files.internal("imagenes/crosshair.png"));
+	    Cursor cursor = Gdx.graphics.newCursor(crosshairPixmap, crosshairPixmap.getWidth() / 2, crosshairPixmap.getHeight() / 2);
+	    Gdx.graphics.setCursor(cursor);
+
+	    // Libera el Pixmap después de usarlo
+	    crosshairPixmap.dispose();
 	}
+
 	@Override
 	public void pause() {
 	}
@@ -76,10 +87,12 @@ public class Play implements Screen {
 	}
 
 	@Override
-	public void dispose() {
-		map.dispose();
-		renderer.dispose();
-		player.getTexture().dispose();
-	}
+    public void dispose() {
+        map.dispose();
+        renderer.dispose();
+        player.getTexture().dispose();
+        crosshairTexture.dispose(); // Libera la textura del crosshair
+        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow); // Restablece el cursor al sistema predeterminado
+    }
 
 }
