@@ -1,13 +1,13 @@
 package com.intothebullethell.game;
 
 import com.badlogic.gdx.Game;
-import com.intothebullethell.game.screens.Play;
+import com.intothebullethell.game.screens.MainMenuScreen;
 
 public class IntoTheBulletHell extends Game {
 	 
 	@Override
 	public void create () {
-		setScreen(new Play());
+		setScreen(new MainMenuScreen(this));
 	}
 
 	@Override
