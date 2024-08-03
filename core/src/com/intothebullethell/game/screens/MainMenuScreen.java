@@ -34,8 +34,8 @@ public class MainMenuScreen implements Screen {
         skin.add("default", textButtonStyle);
 
         // Crear los botones
-        TextButton playButton = new TextButton("Play", skin);
-        TextButton exitButton = new TextButton("Exit", skin);
+        TextButton playButton = new TextButton("Jugar", skin);
+        TextButton exitButton = new TextButton("Salir", skin);
 
         // Manejar los eventos de los botones
         playButton.addListener(new ClickListener() {

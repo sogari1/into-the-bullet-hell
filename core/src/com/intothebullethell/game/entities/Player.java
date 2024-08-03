@@ -8,34 +8,34 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.intothebullethell.game.objects.Arma;
-import com.intothebullethell.game.objects.Escopeta;
-import com.intothebullethell.game.objects.Pistola;
+import com.intothebullethell.game.objects.guns.Arma;
+import com.intothebullethell.game.objects.guns.Escopeta;
+import com.intothebullethell.game.objects.guns.Pistola;
+import com.intothebullethell.game.screens.HUD;
 
-public class Player extends Sprite implements InputProcessor {
+public class Player extends Entity implements InputProcessor {
     private Vector2 velocity = new Vector2();
-    private float speed = 60 * 2;
-    private TiledMapTileLayer collisionLayer;
-    private String blockKey = "bloque";
-    private boolean upPressed, downPressed, leftPressed, rightPressed;
-    private TextureRegion upSprite, downSprite, leftSprite, rightSprite;
-    private Vector2 mousePosition = new Vector2();
+    private float shootTimer;
+    private Arma currentWeapon;
     private OrthographicCamera camera;
     private ArrayList<Projectile> projectiles;
+    private ArrayList<Enemy> enemies;
     private boolean shooting;
-    private Arma currentWeapon;
-    private float shootTimer;
+    private Vector2 mousePosition = new Vector2();
+    private boolean upPressed, downPressed, leftPressed, rightPressed;
+    private TextureRegion upSprite, downSprite, leftSprite, rightSprite;
+    private HUD hud;
+    private int maxHealth = health;
 
-    public Player(Sprite sprite, TiledMapTileLayer collisionLayer, TextureRegion upSprite, TextureRegion downSprite, TextureRegion leftSprite, TextureRegion rightSprite, OrthographicCamera camera) {
-        super(sprite);
-        this.collisionLayer = collisionLayer;
+    public Player(TextureRegion sprite, TiledMapTileLayer collisionLayer, TextureRegion upSprite, TextureRegion downSprite, TextureRegion leftSprite, TextureRegion rightSprite, OrthographicCamera camera) {
+        super(sprite.getTexture(), 10, 100, null); // El último parámetro debe ser la textura del proyectil
+        setCollisionLayer(collisionLayer);
         this.upSprite = upSprite;
         this.downSprite = downSprite;
         this.leftSprite = leftSprite;
@@ -43,11 +43,11 @@ public class Player extends Sprite implements InputProcessor {
         this.projectiles = new ArrayList<>();
         this.camera = camera;
         this.shooting = false;
-        this.currentWeapon = new Pistola(); // Inicialmente con una pistola
+        this.currentWeapon = new Pistola(); 
         this.shootTimer = 0;
     }
 
-    @Override
+	@Override
     public void draw(Batch batch) {
         update(Gdx.graphics.getDeltaTime());
         super.draw(batch);
@@ -55,70 +55,55 @@ public class Player extends Sprite implements InputProcessor {
             projectile.draw(batch);
         }
     }
+	public void dispose() {
+        for (Projectile projectile : projectiles) {
+            projectile.getTexture().dispose();
+        }
+    }
 
+    @Override
     public void update(float delta) {
-        float oldX = getX(), oldY = getY();
-        boolean collisionX = false, collisionY = false;
-
+        updateMovement();
+        handleShooting(delta);
+        updateSprite();
+        updateProjectiles(delta);
+    }
+    private void updateMovement() {
+        velocity.set(0, 0);
+        if (upPressed) velocity.y = speed;
+        if (downPressed) velocity.y = -speed;
+        if (leftPressed) velocity.x = -speed;
+        if (rightPressed) velocity.x = speed;
+        move(Gdx.graphics.getDeltaTime(), velocity);
+    }
+    private void handleShooting(float delta) {
         if (shooting) {
             shootTimer -= delta;
             if (shootTimer <= 0) {
                 shootProjectile(Gdx.input.getX(), Gdx.input.getY());
-                shootTimer = currentWeapon.getFireRate(); // Reinicia el temporizador
+                shootTimer = currentWeapon.getFireRate();
             }
         }
-        
-        // Moverse en X
-        setX(getX() + velocity.x * delta);
-        if (velocity.x < 0) { // Moverse a la izquierda
-            collisionX = isCellBlocked(getX(), getY() + getHeight()) ||
-                         isCellBlocked(getX(), getY() + getHeight() / 2) ||
-                         isCellBlocked(getX(), getY());
-        } else if (velocity.x > 0) { // Moverse a la derecha
-            collisionX = isCellBlocked(getX() + getWidth(), getY() + getHeight()) ||
-                         isCellBlocked(getX() + getWidth(), getY() + getHeight() / 2) ||
-                         isCellBlocked(getX() + getWidth(), getY());
-        }
+    }
 
-        // Reaccionar a colisión X
-        if (collisionX) {
-            setX(oldX);
-            velocity.x = 0;
-        }
-
-        // Moverse en Y
-        setY(getY() + velocity.y * delta);
-        if (velocity.y < 0) { // Moverse hacia abajo
-            collisionY = isCellBlocked(getX(), getY()) ||
-                         isCellBlocked(getX() + getWidth() / 2, getY()) ||
-                         isCellBlocked(getX() + getWidth(), getY());
-        } else if (velocity.y > 0) { // Moverse hacia arriba
-            collisionY = isCellBlocked(getX(), getY() + getHeight()) ||
-                         isCellBlocked(getX() + getWidth() / 2, getY() + getHeight()) ||
-                         isCellBlocked(getX() + getWidth(), getY() + getHeight());
-        }
-
-        // Reaccionar a colisión Y
-        if (collisionY) {
-            setY(oldY);
-            velocity.y = 0;
-        }
-
-        updateSprite();
-
-        // Actualizar los proyectiles
+    private void updateProjectiles(float delta) {
         Iterator<Projectile> iterator = projectiles.iterator();
         while (iterator.hasNext()) {
             Projectile projectile = iterator.next();
             projectile.update(delta);
+            checkProjectileCollision(projectile, iterator);
         }
     }
 
-    private boolean isCellBlocked(float x, float y) {
-        Cell cell = collisionLayer.getCell((int) (x / collisionLayer.getTileWidth()), (int) (y / collisionLayer.getTileHeight()));
-        return cell != null && cell.getTile() != null && cell.getTile().getProperties().containsKey(blockKey);
+    private void checkProjectileCollision(Projectile projectile, Iterator<Projectile> iterator) {
+        for (Enemy enemy : enemies) {
+            if (projectile.collidesWith(enemy)) {
+                enemy.takeDamage(projectile.getDamage());
+                iterator.remove();
+                break;
+            }
+        }
     }
-
     public Vector2 getVelocity() {
         return velocity;
     }
@@ -134,15 +119,9 @@ public class Player extends Sprite implements InputProcessor {
     public void setSpeed(float speed) {
         this.speed = speed;
     }
-
-    public TiledMapTileLayer getCollisionLayer() {
-        return collisionLayer;
+    public void setEnemies(ArrayList<Enemy> enemies) {
+        this.enemies = enemies;
     }
-
-    public void setCollisionLayer(TiledMapTileLayer collisionLayer) {
-        this.collisionLayer = collisionLayer;
-    }
-
     private void updateSprite() {
         Vector2 playerCenter = new Vector2(getX() + getWidth() / 2, getY() + getHeight() / 2);
         Vector3 mouseWorldPos3 = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
@@ -182,6 +161,11 @@ public class Player extends Sprite implements InputProcessor {
             case Keys.NUM_2:
                 setWeapon(new Escopeta());
                 break;
+            case Keys.R:
+                if (currentWeapon != null) {
+                    currentWeapon.reload();
+                }
+                break;
         }
         updateVelocity();
         return true;
@@ -207,6 +191,7 @@ public class Player extends Sprite implements InputProcessor {
         return true;
     }
 
+
     private void updateVelocity() {
         velocity.x = 0;
         velocity.y = 0;
@@ -228,7 +213,11 @@ public class Player extends Sprite implements InputProcessor {
     public boolean keyTyped(char character) {
         return false;
     }
-
+    public void shoot(Vector2 position, Vector2 target, ArrayList<Projectile> projectiles) {
+        if (currentWeapon != null) {
+            currentWeapon.shootProjectile(position, target, projectiles);  // Usa el método de `Arma` que gestiona la munición
+        }
+    }
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (button == Input.Buttons.LEFT) {
@@ -250,11 +239,6 @@ public class Player extends Sprite implements InputProcessor {
     }
 
     @Override
-	public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-    @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         if (shooting && shootTimer <= 0) {
             shootProjectile(screenX, screenY);
@@ -262,6 +246,7 @@ public class Player extends Sprite implements InputProcessor {
         }
         return true;
     }
+
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
         mousePosition.set(screenX, screenY);
@@ -274,16 +259,59 @@ public class Player extends Sprite implements InputProcessor {
         return false;
     }
 
-    private void shootProjectile(int screenX, int screenY) {
-        Vector3 unprojected = camera.unproject(new Vector3(screenX, screenY, 0));
-        Vector2 target = new Vector2(unprojected.x, unprojected.y);
-        Vector2 position = new Vector2(getX() + getWidth() / 2, getY() + getHeight() / 2);
-        currentWeapon.shoot(position, target, projectiles);
+    public void shootProjectile(int screenX, int screenY) {
+        if (currentWeapon.canShoot()) {  // Verifica si se puede disparar
+            Vector3 unprojected = camera.unproject(new Vector3(screenX, screenY, 0));
+            Vector2 target = new Vector2(unprojected.x, unprojected.y);
+            Vector2 position = new Vector2(getX() + getWidth() / 2, getY() + getHeight() / 2);
+            
+            // Dispara el proyectil usando el arma actual
+            currentWeapon.shoot(position, target, projectiles);
+            
+            if (!currentWeapon.isInfiniteAmmo()) {
+                // Resta una bala del cargador después de disparar
+                currentWeapon.shootProjectile(position, target, projectiles);
+            }
+        }
+    }
+
+
+
+    public Arma getCurrentWeapon() {
+        return currentWeapon;
+    }
+    public void reloadWeapon() {
+        if (currentWeapon != null) {
+            currentWeapon.reload();
+        }
     }
 
     public void setWeapon(Arma weapon) {
         this.currentWeapon = weapon;
+        if (hud != null) {
+            hud.updateWeaponSprite();
+        }
     }
+    public void setHUD(HUD hud) {
+        this.hud = hud;
+    }
+    public Texture getWeaponTexture() {
+        return currentWeapon.getWeaponTexture();
+    }
+	@Override
+	public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+		return false;
+	}
 
+	@Override
+	public void attack(ArrayList<Projectile> projectiles) {
+	}
+
+	@Override
+	protected void remove() {
+	}
+
+    public int getMaxHealth() {
+		return maxHealth;
+	}
 }
-

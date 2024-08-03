@@ -34,8 +34,8 @@ public class PauseMenuScreen implements Screen {
         skin.add("default", textButtonStyle);
 
         // Crear los botones
-        TextButton resumeButton = new TextButton("Resume", skin);
-        TextButton mainMenuButton = new TextButton("Main Menu", skin);
+        TextButton resumeButton = new TextButton("Reanudar", skin);
+        TextButton mainMenuButton = new TextButton("Menú Principal", skin);
 
         // Manejar los eventos de los botones
         resumeButton.addListener(new ClickListener() {
