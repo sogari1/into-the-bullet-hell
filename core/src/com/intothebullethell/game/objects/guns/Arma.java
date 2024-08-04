@@ -4,87 +4,90 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
-import com.intothebullethell.game.entities.Player;
-import com.intothebullethell.game.entities.Projectile;
+import com.intothebullethell.game.entities.Proyectil;
+import com.intothebullethell.sound.EfectoSonidoArma;
 
 public abstract class Arma {
-    protected String name;
-    protected float projectileSpeed;
-    protected int damage;
-    protected float fireRate;
-    protected Texture projectileTexture;
-    protected Texture weaponTexture;
-    protected int magazineCapacity;
-    protected boolean infiniteAmmo;
-    protected int bulletsInReserve;
-    protected int bulletsInMagazine;
-    private Player player;
+    protected String nombre;
+    protected float projectilVelocidad;
+    protected int daño;
+    protected float ratioFuego;
+    protected Texture projectilTextura;
+    protected Texture armaTextura;
+    protected int capacidadMunicion;
+    protected boolean municionInfinita;
+    protected int balasEnReserva;
+    protected int balasEnMunicion;
+    private EfectoSonidoArma efectosSonido;
+    
 
-    public Arma(String name, float projectileSpeed, int damage, float fireRate, int magazineCapacity, boolean infiniteAmmo, int bulletsInReserve, Texture projectileTexture, Texture weaponTexture) {
-        this.name = name;
-        this.projectileSpeed = projectileSpeed;
-        this.damage = damage;
-        this.fireRate = fireRate;
-        this.magazineCapacity = magazineCapacity;
-        this.infiniteAmmo = infiniteAmmo;
-        this.bulletsInReserve = bulletsInReserve;
-        this.bulletsInMagazine = magazineCapacity;  // El cargador comienza lleno
-        this.projectileTexture = projectileTexture;
-        this.weaponTexture = weaponTexture;
+    public Arma(String nombre, float projectilVelocidad, int daño, float ratioFuego, int capacidadMunicion, boolean municionInfinita, int balasEnReserva, Texture projectilTextura, Texture armaTextura, EfectoSonidoArma efectosSonido) {
+        this.nombre = nombre;
+        this.projectilVelocidad = projectilVelocidad;
+        this.daño = daño;
+        this.ratioFuego = ratioFuego;
+        this.capacidadMunicion = capacidadMunicion;
+        this.municionInfinita = municionInfinita;
+        this.balasEnReserva = balasEnReserva;
+        this.balasEnMunicion = capacidadMunicion;  // El cargador comienza lleno
+        this.projectilTextura = projectilTextura;
+        this.armaTextura = armaTextura;
+        this.efectosSonido = efectosSonido;
     }
 
-    public abstract void shoot(Vector2 position, Vector2 target, ArrayList<Projectile> projectiles);
+    public abstract void disparar(Vector2 position, Vector2 target, ArrayList<Proyectil> proyectiles);
 
-    public boolean canShoot() {
-        return bulletsInMagazine > 0 || infiniteAmmo;
+    public boolean puedeDisparar() {
+        return balasEnMunicion > 0 || municionInfinita;
     }
 
     public void reload() {
-        if (!infiniteAmmo && bulletsInReserve > 0) {
-            int bulletsNeeded = magazineCapacity - bulletsInMagazine;
-            int bulletsToReload = Math.min(bulletsNeeded, bulletsInReserve);
+        if (!municionInfinita && balasEnReserva > 0) {
+            int bulletsNeeded = capacidadMunicion - balasEnMunicion;
+            int bulletsToReload = Math.min(bulletsNeeded, balasEnReserva);
 
-            bulletsInMagazine += bulletsToReload;
-            bulletsInReserve -= bulletsToReload;
+            balasEnMunicion += bulletsToReload;
+            balasEnReserva -= bulletsToReload;
         }
     }
 
 
-    public void shootProjectile(Vector2 position, Vector2 target, ArrayList<Projectile> projectiles) {
-        if (canShoot()) {
-            shoot(position, target, projectiles);  // Llama al método abstracto de la clase hija
-            if (!infiniteAmmo) {
-                bulletsInMagazine--;  // Decrementa las balas en el cargador
+    public void dispararProyectil(Vector2 position, Vector2 target, ArrayList<Proyectil> proyectiles) {
+        if (puedeDisparar()) {
+        	disparar(position, target, proyectiles);  // Llama al método abstracto de la clase hija
+            if (!municionInfinita) {
+            	balasEnMunicion--;  // Decrementa las balas en el cargador
             }
         }
+        efectosSonido.reproducirDisparo();
     }
 
 
-    public boolean isInfiniteAmmo() {
-        return infiniteAmmo;
+    public boolean esMunicionInfinita() {
+        return municionInfinita;
     }
 
-    public int getBulletsInMagazine() {
-        return bulletsInMagazine;
+    public int getBalasEnMunicion() {
+        return balasEnMunicion;
     }
 
-    public int getBulletsInReserve() {
-        return bulletsInReserve;
+    public int getBalasEnReserva() {
+        return balasEnReserva;
     }
 
-    public String getName() {
-        return name;
+    public String getNombre() {
+        return nombre;
     }
 
-    public Texture getProjectileTexture() {
-        return projectileTexture;
+    public Texture getProjectilTextura() {
+        return projectilTextura;
     }
 
-    public float getFireRate() {
-		return fireRate;
+    public float getRatioFuego() {
+		return ratioFuego;
 	}
 
-	public Texture getWeaponTexture() {
-        return weaponTexture;
+	public Texture getArmaTextura() {
+        return armaTextura;
     }
 }

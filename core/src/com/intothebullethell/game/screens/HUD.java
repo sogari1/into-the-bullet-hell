@@ -7,21 +7,21 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.intothebullethell.game.entities.Player;
+import com.intothebullethell.game.entities.Jugador;
 import com.intothebullethell.game.objects.guns.Arma;
 
 public class HUD {
     private SpriteBatch batch;
     private Stage stage;
     private Texture fullHeart, halfHeart, blankHeart;
-    private Player player;
-    private Texture weaponSprite;
-    private int playerHealth;
+    private Jugador jugador;
+    private Texture armaSprite;
+    private int jugadorVida;
     private BitmapFont font;
 
-    public HUD(SpriteBatch spriteBatch, Player player) {
+    public HUD(SpriteBatch spriteBatch, Jugador jugador) {
         this.stage = new Stage(new ScreenViewport(), spriteBatch);
-        this.player = player;
+        this.jugador = jugador;
         this.batch = spriteBatch;
         fullHeart = new Texture("imagenes/otros/hud/fullHeart.png");
         halfHeart = new Texture("imagenes/otros/hud/halfHeart.png");
@@ -43,13 +43,13 @@ public class HUD {
     }
 
     private void drawHearts() {
-        int maxHealth = player.getMaxHealth(); // Método para obtener la salud máxima
-        playerHealth = player.getHealth();     // Método para obtener la salud actual
+        int maxHealth = jugador.getMaxVida(); // Método para obtener la salud máxima
+        jugadorVida = jugador.getVida();     // Método para obtener la salud actual
         int healthPerHeart = 2;  // Ajusta según sea necesario
 
         int maxHearts = maxHealth / healthPerHeart; // Total de corazones que se deben mostrar
-        int fullHearts = playerHealth / healthPerHeart; // Número de corazones completos
-        boolean hasHalfHeart = (playerHealth % healthPerHeart) > 0; // Si hay una fracción de corazón
+        int fullHearts = jugadorVida / healthPerHeart; // Número de corazones completos
+        boolean hasHalfHeart = (jugadorVida % healthPerHeart) > 0; // Si hay una fracción de corazón
 
         int x = Gdx.graphics.getWidth() - (maxHearts * fullHeart.getWidth()) - 10;
         int y = Gdx.graphics.getHeight() - fullHeart.getHeight() - 10;
@@ -69,19 +69,19 @@ public class HUD {
     }
 
     private void drawWeapon() {
-        if (weaponSprite != null) {
-            batch.draw(weaponSprite, Gdx.graphics.getWidth() - weaponSprite.getWidth(), 0);
+        if (armaSprite != null) {
+            batch.draw(armaSprite, Gdx.graphics.getWidth() - armaSprite.getWidth(), 0);
         }
     }
 
     private void drawAmmo() {
-        Arma currentWeapon = player.getCurrentWeapon(); // Obtén el arma actual del jugador
+    	Arma currentWeapon = jugador.getArmaEquipada(); // Obtén el arma actual del jugador
         if (currentWeapon != null) {
             String ammoText;
-            if (currentWeapon.isInfiniteAmmo()) {
-                ammoText = "Reserva: " + currentWeapon.getBulletsInReserve() + " / INF";
+            if (currentWeapon.esMunicionInfinita()) {
+                ammoText = "Reserva: " + currentWeapon.getBalasEnReserva() + " / INF";
             } else {
-                ammoText = "Cargador: " + currentWeapon.getBulletsInMagazine() + " / Reserva: " + currentWeapon.getBulletsInReserve();
+                ammoText = "Cargador: " + currentWeapon.getBalasEnMunicion() + " / Reserva: " + currentWeapon.getBalasEnReserva();
             }
             font.draw(batch, ammoText, 10, Gdx.graphics.getHeight() - 10); // Ajusta la posición del texto
         }
@@ -96,18 +96,18 @@ public class HUD {
     }
 
     public void updateWeaponSprite() {
-        if (player != null) {
-            weaponSprite = player.getWeaponTexture();
+        if (jugador != null) {
+        	armaSprite = jugador.getArmaTextura();
         }
     }
 
-    public void updatePlayerHealth() {
-        if (player != null) {
-            playerHealth = player.getHealth();
+    public void updateJugadorVida() {
+        if (jugador != null) {
+        	jugadorVida = jugador.getVida();
         }
     }
 
-    public void setPlayerHealth(int health) {
-        this.playerHealth = health;
+    public void setJugadorVida(int vida) {
+        this.jugadorVida = vida;
     }
 }
