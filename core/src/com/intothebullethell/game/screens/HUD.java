@@ -13,7 +13,7 @@ import com.intothebullethell.game.objects.guns.Arma;
 public class HUD {
     private SpriteBatch batch;
     private Stage stage;
-    private Texture fullHeart, halfHeart, blankHeart;
+    private Texture corazonLleno, corazonMitad, corazonVacio;
     private Jugador jugador;
     private Texture armaSprite;
     private int jugadorVida;
@@ -23,9 +23,9 @@ public class HUD {
         this.stage = new Stage(new ScreenViewport(), spriteBatch);
         this.jugador = jugador;
         this.batch = spriteBatch;
-        fullHeart = new Texture("imagenes/otros/hud/fullHeart.png");
-        halfHeart = new Texture("imagenes/otros/hud/halfHeart.png");
-        blankHeart = new Texture("imagenes/otros/hud/blankHeart.png");
+        corazonLleno = new Texture("imagenes/otros/hud/fullHeart.png");
+        corazonMitad = new Texture("imagenes/otros/hud/halfHeart.png");
+        corazonVacio = new Texture("imagenes/otros/hud/blankHeart.png");
         font = new BitmapFont(); // Fuente para dibujar texto
         updateWeaponSprite();
     }
@@ -51,19 +51,19 @@ public class HUD {
         int fullHearts = jugadorVida / healthPerHeart; // Número de corazones completos
         boolean hasHalfHeart = (jugadorVida % healthPerHeart) > 0; // Si hay una fracción de corazón
 
-        int x = Gdx.graphics.getWidth() - (maxHearts * fullHeart.getWidth()) - 10;
-        int y = Gdx.graphics.getHeight() - fullHeart.getHeight() - 10;
+        int x = Gdx.graphics.getWidth() - (maxHearts * corazonLleno.getWidth()) - 10;
+        int y = Gdx.graphics.getHeight() - corazonLleno.getHeight() - 10;
 
         for (int i = 0; i < maxHearts; i++) {
             if (i < fullHearts) {
                 // Dibuja un corazón completo
-                batch.draw(fullHeart, x + i * fullHeart.getWidth(), y);
+                batch.draw(corazonLleno, x + i * corazonLleno.getWidth(), y);
             } else if (hasHalfHeart && i == fullHearts) {
                 // Dibuja un corazón a la mitad
-                batch.draw(halfHeart, x + i * fullHeart.getWidth(), y);
+                batch.draw(corazonMitad, x + i * corazonLleno.getWidth(), y);
             } else {
                 // Dibuja un corazón vacío
-                batch.draw(blankHeart, x + i * fullHeart.getWidth(), y);
+                batch.draw(corazonVacio, x + i * corazonLleno.getWidth(), y);
             }
         }
     }
@@ -88,9 +88,9 @@ public class HUD {
     }
 
     public void dispose() {
-        fullHeart.dispose();
-        halfHeart.dispose();
-        blankHeart.dispose();
+    	corazonLleno.dispose();
+    	corazonMitad.dispose();
+        corazonVacio.dispose();
         stage.dispose();
         font.dispose();
     }

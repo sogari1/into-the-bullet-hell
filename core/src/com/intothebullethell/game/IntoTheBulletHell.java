@@ -16,7 +16,6 @@ public class IntoTheBulletHell extends Game {
 	@Override
 	public void render () {
 		super.render();
-
 	}
 	
 	@Override

@@ -23,17 +23,17 @@ public class Jugador extends Entidad implements InputProcessor {
     private Vector2 velocity = new Vector2();
     private float shootTimer;
     private Arma armaEquipada;
-    private OrthographicCamera camera;
+    private OrthographicCamera camara;
     private ArrayList<Proyectil> proyectiles;
     private ArrayList<Enemigo> enemigos;
-    private boolean shooting;
+    private boolean disparando;
     private Vector2 mousePosition = new Vector2();
     private boolean upPressed, downPressed, leftPressed, rightPressed;
     private TextureRegion upSprite, downSprite, leftSprite, rightSprite;
     private HUD hud;
     private int maxVida = vida;
 
-    public Jugador(TextureRegion sprite, TiledMapTileLayer collisionLayer, TextureRegion upSprite, TextureRegion downSprite, TextureRegion leftSprite, TextureRegion rightSprite, OrthographicCamera camera) {
+    public Jugador(TextureRegion sprite, TiledMapTileLayer collisionLayer, TextureRegion upSprite, TextureRegion downSprite, TextureRegion leftSprite, TextureRegion rightSprite, OrthographicCamera camara) {
         super(sprite.getTexture(), 10, 100, null); // El último parámetro debe ser la textura del proyectil
         setCollisionLayer(collisionLayer);
         this.upSprite = upSprite;
@@ -41,8 +41,8 @@ public class Jugador extends Entidad implements InputProcessor {
         this.leftSprite = leftSprite;
         this.rightSprite = rightSprite;
         this.proyectiles = new ArrayList<>();
-        this.camera = camera;
-        this.shooting = false;
+        this.camara = camara;
+        this.disparando = false;
         this.armaEquipada = new Pistola(); 
         this.shootTimer = 0;
     }
@@ -63,21 +63,21 @@ public class Jugador extends Entidad implements InputProcessor {
 
     @Override
     public void update(float delta) {
-        updateMovement();
-        handleShooting(delta);
-        updateSprite();
-        updateProyectiles(delta);
+    	actualizarMovimiento();
+    	manejarDisparos(delta);
+    	actualizarSprite();
+    	actualizarProyectiles(delta);
     }
-    private void updateMovement() {
+    private void actualizarMovimiento() {
         velocity.set(0, 0);
         if (upPressed) velocity.y = velocidad;
         if (downPressed) velocity.y = -velocidad;
         if (leftPressed) velocity.x = -velocidad;
         if (rightPressed) velocity.x = velocidad;
-        move(Gdx.graphics.getDeltaTime(), velocity);
+        mover(Gdx.graphics.getDeltaTime(), velocity);
     }
-    private void handleShooting(float delta) {
-        if (shooting) {
+    private void manejarDisparos(float delta) {
+        if (disparando) {
             shootTimer -= delta;
             if (shootTimer <= 0) {
             	dispararProyectil(Gdx.input.getX(), Gdx.input.getY());
@@ -86,7 +86,7 @@ public class Jugador extends Entidad implements InputProcessor {
         }
     }
 
-    private void updateProyectiles(float delta) {
+    private void actualizarProyectiles(float delta) {
         Iterator<Proyectil> iterator = proyectiles.iterator();
         while (iterator.hasNext()) {
             Proyectil proyectile = iterator.next();
@@ -122,18 +122,18 @@ public class Jugador extends Entidad implements InputProcessor {
     public void setEnemies(ArrayList<Enemigo> enemigos) {
         this.enemigos = enemigos;
     }
-    private void updateSprite() {
-        Vector2 playerCenter = new Vector2(getX() + getWidth() / 2, getY() + getHeight() / 2);
-        Vector3 mouseWorldPos3 = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+    private void actualizarSprite() {
+        Vector2 jugadorCentro = new Vector2(getX() + getWidth() / 2, getY() + getHeight() / 2);
+        Vector3 mouseWorldPos3 = camara.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
         Vector2 mouseWorldPos = new Vector2(mouseWorldPos3.x, mouseWorldPos3.y);
-        Vector2 direction = mouseWorldPos.sub(playerCenter).nor();
-        float angle = direction.angleDeg();
+        Vector2 direction = mouseWorldPos.sub(jugadorCentro).nor();
+        float angulo = direction.angleDeg();
 
-        if (angle >= 45 && angle < 135) {
+        if (angulo >= 45 && angulo < 135) {
             setRegion(upSprite);  // Arriba
-        } else if (angle >= 135 && angle < 225) {
+        } else if (angulo >= 135 && angulo < 225) {
             setRegion(leftSprite);  // Izquierda
-        } else if (angle >= 225 && angle < 315) {
+        } else if (angulo >= 225 && angulo < 315) {
             setRegion(downSprite);  // Abajo
         } else {
             setRegion(rightSprite);  // Derecha
@@ -167,7 +167,7 @@ public class Jugador extends Entidad implements InputProcessor {
                 }
                 break;
         }
-        updateVelocity();
+        actualizarVelocity();
         return true;
     }
 
@@ -187,12 +187,12 @@ public class Jugador extends Entidad implements InputProcessor {
                 downPressed = false;
                 break;
         }
-        updateVelocity();
+        actualizarVelocity();
         return true;
     }
 
 
-    private void updateVelocity() {
+    private void actualizarVelocity() {
         velocity.x = 0;
         velocity.y = 0;
 
@@ -213,7 +213,7 @@ public class Jugador extends Entidad implements InputProcessor {
     public boolean keyTyped(char character) {
         return false;
     }
-    public void shoot(Vector2 position, Vector2 target, ArrayList<Proyectil> projectiles) {
+    public void disparar(Vector2 position, Vector2 target, ArrayList<Proyectil> projectiles) {
         if (armaEquipada != null) {
         	armaEquipada.dispararProyectil(position, target, projectiles);  // Usa el método de `Arma` que gestiona la munición
         }
@@ -225,7 +225,7 @@ public class Jugador extends Entidad implements InputProcessor {
             	dispararProyectil(screenX, screenY);
                 shootTimer = armaEquipada.getRatioFuego(); // Reinicia el temporizador
             }
-            shooting = true;
+            disparando = true;
         }
         return true;
     }
@@ -233,14 +233,14 @@ public class Jugador extends Entidad implements InputProcessor {
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         if (button == Input.Buttons.LEFT) {
-            shooting = false;
+        	disparando = false;
         }
         return true;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        if (shooting && shootTimer <= 0) {
+        if (disparando && shootTimer <= 0) {
         	dispararProyectil(screenX, screenY);
             shootTimer = armaEquipada.getRatioFuego(); // Reinicia el temporizador
         }
@@ -261,7 +261,7 @@ public class Jugador extends Entidad implements InputProcessor {
 
     public void dispararProyectil(int screenX, int screenY) {
         if (armaEquipada.puedeDisparar()) {  // Verifica si se puede disparar
-            Vector3 unprojected = camera.unproject(new Vector3(screenX, screenY, 0));
+            Vector3 unprojected = camara.unproject(new Vector3(screenX, screenY, 0));
             Vector2 target = new Vector2(unprojected.x, unprojected.y);
             Vector2 position = new Vector2(getX() + getWidth() / 2, getY() + getHeight() / 2);
             

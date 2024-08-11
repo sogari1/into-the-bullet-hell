@@ -34,13 +34,13 @@ import com.intothebullethell.sound.Musica;
 public class Jugar implements Screen {
 
     private TiledMap map;
-    private OrthogonalTiledMapRenderer renderer;
-    private OrthographicCamera camera;
+    private OrthogonalTiledMapRenderer renderizar;
+    private OrthographicCamera camara;
     private IntoTheBulletHell game;
     private Jugador jugador;
     private Stage stage;
     private Skin skin;
-    private boolean paused;
+    private boolean pausado;
     private HUD hud;
     private SpriteBatch batch;
     private ArrayList<Enemigo> enemigos;
@@ -50,7 +50,7 @@ public class Jugar implements Screen {
 
     public Jugar(IntoTheBulletHell game) {
         this.game = game;
-        this.paused = false;
+        this.pausado = false;
         this.batch = new SpriteBatch();
         this.enemigos = new ArrayList<>();
         
@@ -64,21 +64,21 @@ public class Jugar implements Screen {
     public void render(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             game.setScreen(new MenuPausaPantalla(game, this));
-            paused = true;
+            pausado = true;
             gameMusic.pause(); 
         }
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!paused) {
-            camera.position.set(jugador.getX() + jugador.getWidth() / 2, jugador.getY() + jugador.getHeight() / 2, 0);
-            camera.update();
+        if (!pausado) {
+            camara.position.set(jugador.getX() + jugador.getWidth() / 2, jugador.getY() + jugador.getHeight() / 2, 0);
+            camara.update();
 
-            renderer.setView(camera);
-            renderer.render();
+            renderizar.setView(camara);
+            renderizar.render();
             
             // Usa renderer.getBatch() para todo el dibujo
-            SpriteBatch batch = (SpriteBatch) renderer.getBatch();
+            SpriteBatch batch = (SpriteBatch) renderizar.getBatch();
             
             jugador.update(delta);
 
@@ -107,8 +107,8 @@ public class Jugar implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        camera.viewportWidth = width - 400;
-        camera.viewportHeight = height - 400;
+        camara.viewportWidth = width - 400;
+        camara.viewportHeight = height - 400;
         stage.getViewport().update(width, height, true);
     }
 
@@ -116,8 +116,8 @@ public class Jugar implements Screen {
     public void show() {
         if (map == null) {
             map = new TmxMapLoader().load("mapas/mapa.tmx");
-            renderer = new OrthogonalTiledMapRenderer(map);
-            camera = new OrthographicCamera();
+            renderizar = new OrthogonalTiledMapRenderer(map);
+            camara = new OrthographicCamera();
 
             TiledMapTileLayer collisionLayer = (TiledMapTileLayer) map.getLayers().get(0);
 
@@ -128,7 +128,7 @@ public class Jugar implements Screen {
             TextureRegion rightSprite = new TextureRegion(new Texture("imagenes/personaje/kurumiRight.png"));
 
             // Inicializa `Jugador` aquí
-            jugador = new Jugador(downSprite, (TiledMapTileLayer) map.getLayers().get(0), upSprite, downSprite, leftSprite, rightSprite, camera);
+            jugador = new Jugador(downSprite, (TiledMapTileLayer) map.getLayers().get(0), upSprite, downSprite, leftSprite, rightSprite, camara);
             jugador.setPosition(15 * collisionLayer.getTileWidth(), 15 * collisionLayer.getHeight());
             jugador.setCollisionLayer(collisionLayer); 
             
@@ -171,7 +171,7 @@ public class Jugar implements Screen {
     @Override
     public void dispose() {
         map.dispose();
-        renderer.dispose();
+        renderizar.dispose();
         stage.dispose();
         skin.dispose();
         hud.dispose(); 
@@ -179,7 +179,7 @@ public class Jugar implements Screen {
     }
 
     public void resumeGame() {
-        paused = false;
+        pausado = false;
         Gdx.input.setInputProcessor(jugador);
         // Reanudar la música
         gameMusic.play();

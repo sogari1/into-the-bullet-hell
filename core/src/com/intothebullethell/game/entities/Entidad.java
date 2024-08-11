@@ -24,7 +24,7 @@ public abstract class Entidad extends Sprite {
         boundingBox = new Rectangle(getX(), getY(), getWidth(), getHeight());
     }
 
-    public void move(float delta, Vector2 velocity) {
+    public void mover(float delta, Vector2 velocity) {
         float oldX = getX();
         float oldY = getY();
         setPositionAndCheckCollision(getX() + velocity.x * delta, getY(), oldX, oldY);
