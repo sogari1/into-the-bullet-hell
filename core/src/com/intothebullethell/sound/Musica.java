@@ -10,7 +10,7 @@ public class Musica {
 
     public Musica() {
         mainMenuMusic = Gdx.audio.newMusic(Gdx.files.internal("sonidos/musica/DarkSouls.mp3"));
-        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("sonidos/musica/Adrenaline.wav"));
+        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("sonidos/musica/Adrenaline.mp3"));
         pauseMusic = Gdx.audio.newMusic(Gdx.files.internal("sonidos/musica/DarkSouls.mp3"));
     }
 
