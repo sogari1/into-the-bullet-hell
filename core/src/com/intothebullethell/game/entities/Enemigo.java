@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Vector2;
 
 public class Enemigo extends Entidad {
     private float attackInterval = 5;
@@ -14,7 +13,7 @@ public class Enemigo extends Entidad {
     private ArrayList<Enemigo> enemigos;
 
     public Enemigo(Jugador jugador, ArrayList<Enemigo> enemigos) {
-        super(new Texture("imagenes/enemigos/ENEMIGO.png"), 4, 10, new Texture("imagenes/objetos/armaProyectil/BALA.png"));
+        super(new Texture("imagenes/enemigos/ENEMIGO.png"), 4, 10, new Texture("imagenes/objetos/armaProyectil/bala.png"));
         this.proyectiles = new ArrayList<>();
         this.jugador = jugador;
         this.enemigos = enemigos; // Asigna la lista de enemigos correctamente
