@@ -1,70 +1,49 @@
 package com.intothebullethell.game.entities;
 
-import java.util.ArrayList;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.intothebullethell.game.managers.TileColisionManager;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 
 public abstract class Entidad extends Sprite {
-    private TiledMapTileLayer collisionLayer;
+	private TileColisionManager tileCollisionManager;
     protected int vida;
     protected float velocidad;
     protected Texture projectilTextura;
-    private Rectangle boundingBox;
+    protected Rectangle boundingBox;
+    protected Vector2 velocity; 
 
-    public Entidad(Texture texture, int vida, int velocidad, Texture projectilTextura) {
+    public Entidad(Texture texture, int vida, int velocidad, Texture projectilTextura, TiledMapTileLayer collisionLayer) {
         super(texture);
         this.vida = vida;
         this.velocidad = velocidad;
         this.projectilTextura = projectilTextura;
-        boundingBox = new Rectangle(getX(), getY(), getWidth(), getHeight());
+        this.velocity = new Vector2();
+        this.tileCollisionManager = new TileColisionManager(collisionLayer);
+        this.boundingBox = new Rectangle(getX(), getY(), getWidth(), getHeight());
     }
 
     public void mover(float delta, Vector2 velocity) {
         float oldX = getX();
         float oldY = getY();
-        setPositionAndCheckCollision(getX() + velocity.x * delta, getY(), oldX, oldY);
-        setPositionAndCheckCollision(getX(), getY() + velocity.y * delta, oldX, oldY);
+
+        float newX = getX() + velocity.x * delta;
+        float newY = getY() + velocity.y * delta;
+
+        tileCollisionManager.setPositionAndCheckCollision(this, newX, newY, oldX, oldY);
     }
 
-    private void setPositionAndCheckCollision(float newX, float newY, float oldX, float oldY) {
-        setX(newX);
-        setY(newY);
+
+    public void updateBoundingBox() {
         boundingBox.setPosition(getX(), getY());
-        if (isCollision()) {
-            setX(oldX);
-            setY(oldY);
-            boundingBox.setPosition(getX(), getY());
-        }
+        boundingBox.setSize(getWidth(), getHeight());
     }
 
-    private boolean isCollision() {
-        if (collisionLayer != null) {
-            int tileWidth = collisionLayer.getTileWidth();
-            int tileHeight = collisionLayer.getTileHeight();
-            int startX = (int) (boundingBox.x / tileWidth);
-            int startY = (int) (boundingBox.y / tileHeight);
-            int endX = (int) ((boundingBox.x + boundingBox.width) / tileWidth);
-            int endY = (int) ((boundingBox.y + boundingBox.height) / tileHeight);
-
-            for (int x = startX; x <= endX; x++) {
-                for (int y = startY; y <= endY; y++) {
-                    Cell cell = collisionLayer.getCell(x, y);
-                    if (cell != null && cell.getTile() != null && cell.getTile().getProperties().containsKey("bloque")) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    public void setCollisionLayer(TiledMapTileLayer collisionLayer) {
-        this.collisionLayer = collisionLayer;
+    public Rectangle getBoundingBox() {
+        return boundingBox;
     }
 
     public int getVida() {
@@ -91,7 +70,6 @@ public abstract class Entidad extends Sprite {
         this.projectilTextura = projectilTextura;
     }
 
-
     public void recibirDaño(float daño) {
         vida -= daño;
         if (vida <= 0) {
@@ -101,6 +79,11 @@ public abstract class Entidad extends Sprite {
 
     protected abstract void remove();
     public abstract void update(float delta);
-    public abstract void atacar(ArrayList<Proyectil> projectil);
+
+    public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+	public void atacar() {}
 }
 

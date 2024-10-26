@@ -1,12 +1,8 @@
 package com.intothebullethell.game.entities;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -14,48 +10,51 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.intothebullethell.game.inputs.InputManager;
+import com.intothebullethell.game.managers.ProyectilManager;
+import com.intothebullethell.game.mecanicas.ArmaAleatoria;
 import com.intothebullethell.game.objects.guns.Arma;
-import com.intothebullethell.game.objects.guns.Pistola;
-import com.intothebullethell.game.objects.guns.Escopeta;
-import com.intothebullethell.game.screens.HUD;
+import com.intothebullethell.game.ui.Hud;
 
-public class Jugador extends Entidad implements InputProcessor {
+public class Jugador extends Entidad {
     private Vector2 velocity = new Vector2();
-    private float shootTimer;
+    private float shootTimer = 0;
     private Arma armaEquipada;
+    private ArmaAleatoria armaAleatoria;
     private OrthographicCamera camara;
     private ArrayList<Proyectil> proyectiles;
     private ArrayList<Enemigo> enemigos;
-    private boolean disparando;
+    private boolean disparando = false;
     private Vector2 mousePosition = new Vector2();
-    private boolean upPressed, downPressed, leftPressed, rightPressed;
     private TextureRegion upSprite, downSprite, leftSprite, rightSprite;
-    private HUD hud;
+    private Hud hud;
     private int maxVida = vida;
+    private InputManager inputManager;
+    private ProyectilManager proyectilManager;
 
-    public Jugador(TextureRegion sprite, TiledMapTileLayer collisionLayer, TextureRegion upSprite, TextureRegion downSprite, TextureRegion leftSprite, TextureRegion rightSprite, OrthographicCamera camara) {
-        super(sprite.getTexture(), 10, 100, null); // El último parámetro debe ser la textura del proyectil
-        setCollisionLayer(collisionLayer);
+    public Jugador(TextureRegion sprite, TextureRegion upSprite, TextureRegion downSprite, TextureRegion leftSprite, TextureRegion rightSprite, OrthographicCamera camara, InputManager inputManager, TiledMapTileLayer collisionLayer) {
+    	super(sprite.getTexture(), 10, 100, null, collisionLayer);
         this.upSprite = upSprite;
         this.downSprite = downSprite;
         this.leftSprite = leftSprite;
         this.rightSprite = rightSprite;
         this.proyectiles = new ArrayList<>();
         this.camara = camara;
-        this.disparando = false;
-        this.armaEquipada = new Pistola(); 
-        this.shootTimer = 0;
+        this.armaAleatoria = new ArmaAleatoria();
+        this.armaEquipada = armaAleatoria.obtenerArmaAleatoria();
+        this.inputManager = inputManager;
+        this.inputManager.setJugador(this);
+        this.proyectilManager = new ProyectilManager();
     }
 
-	@Override
+    @Override
     public void draw(Batch batch) {
         update(Gdx.graphics.getDeltaTime());
         super.draw(batch);
-        for (Proyectil proyectil : proyectiles) {
-            proyectil.draw(batch);
-        }
+        proyectilManager.draw(batch); 
     }
-	public void dispose() {
+
+    public void dispose() {
         for (Proyectil proyectil : proyectiles) {
             proyectil.getTexture().dispose();
         }
@@ -63,65 +62,43 @@ public class Jugador extends Entidad implements InputProcessor {
 
     @Override
     public void update(float delta) {
-    	actualizarMovimiento();
-    	manejarDisparos(delta);
-    	actualizarSprite();
-    	actualizarProyectiles(delta);
+        actualizarMovimiento();
+        manejarDisparos(delta);
+        actualizarSprite();
+        proyectilManager.actualizarProyectiles(delta, enemigos, this);
+        actualizarCamara();
     }
+
     private void actualizarMovimiento() {
         velocity.set(0, 0);
-        if (upPressed) velocity.y = velocidad;
-        if (downPressed) velocity.y = -velocidad;
-        if (leftPressed) velocity.x = -velocidad;
-        if (rightPressed) velocity.x = velocidad;
+        if (inputManager.upPressed && !inputManager.downPressed) {
+            velocity.y = velocidad;  
+        } else if (!inputManager.upPressed && inputManager.downPressed) {
+            velocity.y = -velocidad; 
+        }
+
+        if (inputManager.leftPressed && !inputManager.rightPressed) {
+            velocity.x = -velocidad;
+        } else if (inputManager.rightPressed && !inputManager.leftPressed) {
+            velocity.x = velocidad; 
+        }
         mover(Gdx.graphics.getDeltaTime(), velocity);
     }
+
     private void manejarDisparos(float delta) {
         if (disparando) {
             shootTimer -= delta;
             if (shootTimer <= 0) {
-            	dispararProyectil(Gdx.input.getX(), Gdx.input.getY());
-                shootTimer = armaEquipada.getRatioFuego();
+            	proyectilManager.dispararProyectil(camara, armaEquipada, getX() + getWidth() / 2, getY() + getHeight() / 2, Gdx.input.getX(), Gdx.input.getY());
+                shootTimer = armaEquipada.getRatioFuego(); 
             }
         }
     }
-
-    private void actualizarProyectiles(float delta) {
-        Iterator<Proyectil> iterator = proyectiles.iterator();
-        while (iterator.hasNext()) {
-            Proyectil proyectile = iterator.next();
-            proyectile.update(delta);
-            checkProyectileCollision(proyectile, iterator);
-        }
+    private void actualizarCamara() {
+        camara.position.set(getX() + getWidth() / 2, getY() + getHeight() / 2, 0);
+        camara.update();
     }
 
-    private void checkProyectileCollision(Proyectil projectile, Iterator<Proyectil> iterator) {
-        for (Enemigo enemigo : enemigos) {
-            if (projectile.collidesWith(enemigo)) {
-            	enemigo.recibirDaño(projectile.getDaño());
-                iterator.remove();
-                break;
-            }
-        }
-    }
-    public Vector2 getVelocity() {
-        return velocity;
-    }
-
-    public void setVelocity(Vector2 velocity) {
-        this.velocity = velocity;
-    }
-
-    public float getVelocidad() {
-        return velocidad;
-    }
-
-    public void setSpeed(float velocidad) {
-        this.velocidad = velocidad;
-    }
-    public void setEnemies(ArrayList<Enemigo> enemigos) {
-        this.enemigos = enemigos;
-    }
     private void actualizarSprite() {
         Vector2 jugadorCentro = new Vector2(getX() + getWidth() / 2, getY() + getHeight() / 2);
         Vector3 mouseWorldPos3 = camara.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
@@ -140,178 +117,64 @@ public class Jugador extends Entidad implements InputProcessor {
         }
     }
 
-    @Override
-    public boolean keyDown(int keycode) {
-        switch (keycode) {
-            case Keys.W:
-                upPressed = true;
-                break;
-            case Keys.A:
-                leftPressed = true;
-                break;
-            case Keys.D:
-                rightPressed = true;
-                break;
-            case Keys.S:
-                downPressed = true;
-                break;
-            case Keys.NUM_1:
-                setArma(new Pistola());
-                break;
-            case Keys.NUM_2:
-            	setArma(new Escopeta());
-                break;
-            case Keys.R:
-                if (armaEquipada != null) {
-                	armaEquipada.reload();
-                }
-                break;
-        }
-        actualizarVelocity();
-        return true;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        switch (keycode) {
-            case Keys.W:
-                upPressed = false;
-                break;
-            case Keys.A:
-                leftPressed = false;
-                break;
-            case Keys.D:
-                rightPressed = false;
-                break;
-            case Keys.S:
-                downPressed = false;
-                break;
-        }
-        actualizarVelocity();
-        return true;
-    }
-
-
-    private void actualizarVelocity() {
-        velocity.x = 0;
-        velocity.y = 0;
-
-        if (upPressed && !downPressed) {
-            velocity.y = velocidad;
-        } else if (!upPressed && downPressed) {
-            velocity.y = -velocidad;
-        }
-
-        if (leftPressed && !rightPressed) {
-            velocity.x = -velocidad;
-        } else if (!leftPressed && rightPressed) {
-            velocity.x = velocidad;
-        }
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-    public void disparar(Vector2 position, Vector2 target, ArrayList<Proyectil> projectiles) {
-        if (armaEquipada != null) {
-        	armaEquipada.dispararProyectil(position, target, projectiles);  // Usa el método de `Arma` que gestiona la munición
-        }
-    }
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (button == Input.Buttons.LEFT) {
-            if (shootTimer <= 0) {
-            	dispararProyectil(screenX, screenY);
-                shootTimer = armaEquipada.getRatioFuego(); // Reinicia el temporizador
-            }
-            disparando = true;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        if (button == Input.Buttons.LEFT) {
-        	disparando = false;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        if (disparando && shootTimer <= 0) {
-        	dispararProyectil(screenX, screenY);
-            shootTimer = armaEquipada.getRatioFuego(); // Reinicia el temporizador
-        }
-        return true;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        mousePosition.set(screenX, screenY);
-        mousePosition = mousePosition.scl(1, -1).add(0, Gdx.graphics.getHeight());
-        return true;
-    }
-
-    @Override
-    public boolean scrolled(float amountX, float amountY) {
-        return false;
-    }
-
-    public void dispararProyectil(int screenX, int screenY) {
-        if (armaEquipada.puedeDisparar()) {  // Verifica si se puede disparar
-            Vector3 unprojected = camara.unproject(new Vector3(screenX, screenY, 0));
-            Vector2 target = new Vector2(unprojected.x, unprojected.y);
-            Vector2 position = new Vector2(getX() + getWidth() / 2, getY() + getHeight() / 2);
-            
-            // Dispara el proyectil usando el arma actual
-            armaEquipada.disparar(position, target, proyectiles);
-            
-            if (!armaEquipada.esMunicionInfinita()) {
-                // Resta una bala del cargador después de disparar
-            	armaEquipada.dispararProyectil(position, target, proyectiles);
-            }
-        }
-    }
-
-
-
-    public Arma getArmaEquipada() {
-        return armaEquipada;
-    }
     public void recargarArma() {
         if (armaEquipada != null) {
-        	armaEquipada.reload();
+            armaEquipada.reload();
         }
     }
 
+    public void cambiarArma() {
+        this.armaEquipada = armaAleatoria.obtenerArmaAleatoria();
+        hud.updateWeaponSprite(); 
+    }
+
+    public void setDisparando(boolean disparando) { 
+    	this.disparando = disparando; 
+    }
+    public boolean isDisparando() {
+        return disparando;
+    }
+    public void setMousePosition(int screenX, int screenY) {
+        mousePosition.set(screenX, screenY);
+        mousePosition = mousePosition.scl(1, -1).add(0, Gdx.graphics.getHeight());
+    }
+    public void setEnemies(ArrayList<Enemigo> enemigos) { 
+    	this.enemigos = enemigos; 
+    }
+    public Arma getArmaEquipada() { 
+    	return armaEquipada; 
+    }
     public void setArma(Arma arma) {
         this.armaEquipada = arma;
         if (hud != null) {
             hud.updateWeaponSprite();
         }
     }
-    public void setHUD(HUD hud) {
-        this.hud = hud;
-    }
-    public Texture getArmaTextura() {
-        return armaEquipada.getArmaTextura();
-    }
-	@Override
-	public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
-		return false;
-	}
-
-	@Override
-	public void atacar(ArrayList<Proyectil> Proyectiles) {
-	}
-
-	@Override
-	protected void remove() {
-	}
-
     public int getMaxVida() {
 		return maxVida;
 	}
+
+	public void setHud(Hud hud) { 
+    	this.hud = hud; 
+    }
+    public float getShootTimer() {
+        return shootTimer;
+    }
+    public void setShootTimer(float shootTimer) {
+        this.shootTimer = shootTimer;
+    }
+    @Override
+    protected void remove() {
+    }
+
+    public Texture getArmaTextura() {
+    	return armaEquipada.getArmaTextura();
+    }
+    public void setProyectilManager(ProyectilManager proyectilManager) {
+        this.proyectilManager = proyectilManager;
+    }
+
+    public ProyectilManager getProyectilManager() {
+        return proyectilManager;
+    }
 }

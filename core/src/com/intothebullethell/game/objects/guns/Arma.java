@@ -9,10 +9,10 @@ import com.intothebullethell.sound.EfectoSonidoArma;
 
 public abstract class Arma {
     protected String nombre;
-    protected float projectilVelocidad;
+    protected float proyectilVelocidad;
     protected int daño;
     protected float ratioFuego;
-    protected Texture projectilTextura;
+    protected Texture proyectilTextura;
     protected Texture armaTextura;
     protected int capacidadMunicion;
     protected boolean municionInfinita;
@@ -21,16 +21,16 @@ public abstract class Arma {
     private EfectoSonidoArma efectosSonido;
     
 
-    public Arma(String nombre, float projectilVelocidad, int daño, float ratioFuego, int capacidadMunicion, boolean municionInfinita, int balasEnReserva, Texture projectilTextura, Texture armaTextura, EfectoSonidoArma efectosSonido) {
+    public Arma(String nombre, float proyectilVelocidad, int daño, float ratioFuego, int capacidadMunicion, boolean municionInfinita, int balasEnReserva, Texture proyectilTextura, Texture armaTextura, EfectoSonidoArma efectosSonido) {
         this.nombre = nombre;
-        this.projectilVelocidad = projectilVelocidad;
+        this.proyectilVelocidad = proyectilVelocidad;
         this.daño = daño;
         this.ratioFuego = ratioFuego;
         this.capacidadMunicion = capacidadMunicion;
         this.municionInfinita = municionInfinita;
         this.balasEnReserva = balasEnReserva;
-        this.balasEnMunicion = capacidadMunicion;  // El cargador comienza lleno
-        this.projectilTextura = projectilTextura;
+        this.balasEnMunicion = capacidadMunicion; 
+        this.proyectilTextura = proyectilTextura;
         this.armaTextura = armaTextura;
         this.efectosSonido = efectosSonido;
     }
@@ -54,9 +54,9 @@ public abstract class Arma {
 
     public void dispararProyectil(Vector2 position, Vector2 target, ArrayList<Proyectil> proyectiles) {
         if (puedeDisparar()) {
-        	disparar(position, target, proyectiles);  // Llama al método abstracto de la clase hija
+        	disparar(position, target, proyectiles);  
             if (!municionInfinita) {
-            	balasEnMunicion--;  // Decrementa las balas en el cargador
+            	balasEnMunicion--;  
             }
         }
         efectosSonido.reproducirDisparo();
@@ -79,8 +79,8 @@ public abstract class Arma {
         return nombre;
     }
 
-    public Texture getProjectilTextura() {
-        return projectilTextura;
+    public Texture getProyectilTextura() {
+        return proyectilTextura;
     }
 
     public float getRatioFuego() {
