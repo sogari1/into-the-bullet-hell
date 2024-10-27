@@ -12,39 +12,41 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.intothebullethell.game.inputs.InputManager;
 import com.intothebullethell.game.managers.ProyectilManager;
+import com.intothebullethell.game.managers.TileColisionManager;
 import com.intothebullethell.game.mecanicas.ArmaAleatoria;
 import com.intothebullethell.game.objects.guns.Arma;
 import com.intothebullethell.game.ui.Hud;
 
 public class Jugador extends Entidad {
     private Vector2 velocity = new Vector2();
-    private float shootTimer = 0;
+    private Vector2 mousePosition = new Vector2();
     private Arma armaEquipada;
     private ArmaAleatoria armaAleatoria;
     private OrthographicCamera camara;
     private ArrayList<Proyectil> proyectiles;
     private ArrayList<Enemigo> enemigos;
-    private boolean disparando = false;
-    private Vector2 mousePosition = new Vector2();
     private TextureRegion upSprite, downSprite, leftSprite, rightSprite;
     private Hud hud;
-    private int maxVida = vida;
     private InputManager inputManager;
     private ProyectilManager proyectilManager;
+    private float shootTimer = 0;
+    private int vidaActual;
+    private boolean disparando = false;
 
-    public Jugador(TextureRegion sprite, TextureRegion upSprite, TextureRegion downSprite, TextureRegion leftSprite, TextureRegion rightSprite, OrthographicCamera camara, InputManager inputManager, TiledMapTileLayer collisionLayer) {
-    	super(sprite.getTexture(), 10, 100, null, collisionLayer);
+    public Jugador(TextureRegion sprite, TextureRegion upSprite, TextureRegion downSprite, TextureRegion leftSprite, TextureRegion rightSprite, OrthographicCamera camara, InputManager inputManager, TiledMapTileLayer collisionLayer, TileColisionManager tileColisionManager) {
+    	super(sprite.getTexture(), 20, 100, null, collisionLayer);
         this.upSprite = upSprite;
         this.downSprite = downSprite;
         this.leftSprite = leftSprite;
         this.rightSprite = rightSprite;
         this.proyectiles = new ArrayList<>();
         this.camara = camara;
+        this.vidaActual = vidaMaxima;
         this.armaAleatoria = new ArmaAleatoria();
         this.armaEquipada = armaAleatoria.obtenerArmaAleatoria();
         this.inputManager = inputManager;
         this.inputManager.setJugador(this);
-        this.proyectilManager = new ProyectilManager();
+        this.proyectilManager = new ProyectilManager(tileColisionManager);
     }
 
     @Override
@@ -118,11 +120,14 @@ public class Jugador extends Entidad {
     }
 
     public void recargarArma() {
-        if (armaEquipada != null) {
-            armaEquipada.reload();
-        }
+    	armaEquipada.reload();
     }
-
+    public boolean chequearMuerte() {
+        if (vidaActual == 0) {
+            return true; 
+        }
+        return false; 
+    }
     public void cambiarArma() {
         this.armaEquipada = armaAleatoria.obtenerArmaAleatoria();
         hud.updateWeaponSprite(); 
@@ -146,14 +151,11 @@ public class Jugador extends Entidad {
     }
     public void setArma(Arma arma) {
         this.armaEquipada = arma;
-        if (hud != null) {
-            hud.updateWeaponSprite();
-        }
+        hud.updateWeaponSprite();
     }
-    public int getMaxVida() {
-		return maxVida;
-	}
-
+    public int getVidaActual() {
+        return vidaActual;
+    }
 	public void setHud(Hud hud) { 
     	this.hud = hud; 
     }
@@ -162,9 +164,6 @@ public class Jugador extends Entidad {
     }
     public void setShootTimer(float shootTimer) {
         this.shootTimer = shootTimer;
-    }
-    @Override
-    protected void remove() {
     }
 
     public Texture getArmaTextura() {
@@ -177,4 +176,13 @@ public class Jugador extends Entidad {
     public ProyectilManager getProyectilManager() {
         return proyectilManager;
     }
+    @Override
+    public void recibirDaño(int daño) {
+        vidaActual -= daño;
+        if (vidaActual < 0) {
+        	vidaActual = 0; 
+        }
+    }
+    @Override
+    protected void remove() {}
 }

@@ -10,15 +10,15 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 
 public abstract class Entidad extends Sprite {
 	private TileColisionManager tileCollisionManager;
-    protected int vida;
+    protected int vidaMaxima;
     protected float velocidad;
     protected Texture projectilTextura;
     protected Rectangle boundingBox;
     protected Vector2 velocity; 
 
-    public Entidad(Texture texture, int vida, int velocidad, Texture projectilTextura, TiledMapTileLayer collisionLayer) {
+    public Entidad(Texture texture, int vidaMaxima, int velocidad, Texture projectilTextura, TiledMapTileLayer collisionLayer) {
         super(texture);
-        this.vida = vida;
+        this.vidaMaxima = vidaMaxima;
         this.velocidad = velocidad;
         this.projectilTextura = projectilTextura;
         this.velocity = new Vector2();
@@ -46,12 +46,12 @@ public abstract class Entidad extends Sprite {
         return boundingBox;
     }
 
-    public int getVida() {
-        return vida;
+    public int getVidaMaxima() {
+        return vidaMaxima;
     }
 
-    public void setVida(int vida) {
-        this.vida = vida;
+    public void setVida(int vidaMaxima) {
+        this.vidaMaxima = vidaMaxima;
     }
 
     public float getVelocidad() {
@@ -70,12 +70,7 @@ public abstract class Entidad extends Sprite {
         this.projectilTextura = projectilTextura;
     }
 
-    public void recibirDaño(float daño) {
-        vida -= daño;
-        if (vida <= 0) {
-            remove();
-        }
-    }
+    public void recibirDaño(int daño) {}
 
     protected abstract void remove();
     public abstract void update(float delta);

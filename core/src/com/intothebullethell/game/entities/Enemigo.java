@@ -85,9 +85,9 @@ public abstract class Enemigo extends Entidad {
     }
 
     @Override
-    public void recibirDaño(float daño) {
-        vida -= daño;
-        if (vida <= 0) {
+    public void recibirDaño(int daño) {
+        vidaMaxima -= daño;
+        if (vidaMaxima <= 0) {
             remove();
         }
     }

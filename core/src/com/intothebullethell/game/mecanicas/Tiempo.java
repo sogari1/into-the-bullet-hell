@@ -18,10 +18,10 @@ public class Tiempo extends Thread {
     @Override
     public void run() {
         while (running) {
-            if (!paused) {  // Pausar el temporizador sin salir del hilo
+            if (!paused) { 
                 try {
                     Thread.sleep(1000);
-//                    System.out.println("Aleatorizar arma en: " + tiempo + " segundos");
+                    System.out.println("Aleatorizar arma en: " + tiempo + " segundos");
                     tiempo--;
                     if (tiempo < 0) {
                         jugador.cambiarArma();

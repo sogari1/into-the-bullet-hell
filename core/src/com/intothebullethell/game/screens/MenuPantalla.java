@@ -17,29 +17,34 @@ public class MenuPantalla implements Screen {
 
     private Stage stage;
     private Music menuMusic;
-    private Texto titleLabel;
-    private Boton playButton;
-    private Boton exitButton;
+    private Texto tituloJuego;
+    private Boton playSingleplayerButton, playMultiplayerButton,exitButton;
     private IntoTheBulletHell game;
 
     public MenuPantalla(IntoTheBulletHell game) {
     	this.game = game;
-        stage = new Stage(new ScreenViewport());
+        this.stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
         menuMusic = Gdx.audio.newMusic(Gdx.files.internal("sonidos/musica/DarkSouls.mp3"));
         menuMusic.setLooping(true);
         menuMusic.play();
 
-        titleLabel = new Texto("Into The Bullet Hell", 48, Color.WHITE, 0, Gdx.graphics.getHeight() - 400);
-        titleLabel.centerX();
+        tituloJuego = new Texto("Into The Bullet Hell", 48, Color.WHITE, 0, Gdx.graphics.getHeight() - 400);
+        tituloJuego.setShadow(6, 6, Color.GRAY);
+        tituloJuego.centerX();
 
-        playButton = new Boton(new Texto("Jugar", 24, Color.WHITE, 0, 200));
-        playButton.centrarX();
-        exitButton = new Boton(new Texto("Salir", 24, Color.WHITE, 0, 150));
+        playSingleplayerButton = new Boton(new Texto("Singleplayer", 24, Color.WHITE, 0, 200));
+        playSingleplayerButton.centrarX();
+        
+        playMultiplayerButton = new Boton(new Texto("Multiplayer", 24, Color.WHITE, 0, 150));
+        playMultiplayerButton.centrarX();
+        
+        exitButton = new Boton(new Texto("Salir", 24, Color.WHITE, 0, 100));
         exitButton.centrarX();
         
-        stage.addActor(playButton);
+        stage.addActor(playSingleplayerButton);
+        stage.addActor(playMultiplayerButton);
         stage.addActor(exitButton);
     }
 
@@ -52,15 +57,16 @@ public class MenuPantalla implements Screen {
     	 Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
          stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
          
-         RenderManager.batch.begin();
-         titleLabel.draw(RenderManager.batch); 
-         playButton.draw(RenderManager.batch);  
+         RenderManager.begin();
+         tituloJuego.draw(RenderManager.batch); 
+         playSingleplayerButton.draw(RenderManager.batch);  
+         playMultiplayerButton.draw(RenderManager.batch);  
          exitButton.draw(RenderManager.batch);  
-         RenderManager.batch.end();
+         RenderManager.end();
          
          stage.draw();
          
-         if (playButton.isClicked()) {
+         if (playSingleplayerButton.isClicked()) {
              ((Game) Gdx.app.getApplicationListener()).setScreen(new JuegoPantalla(this.game));
              menuMusic.stop();
          }
@@ -87,8 +93,9 @@ public class MenuPantalla implements Screen {
     public void dispose() {
         stage.dispose();
         menuMusic.dispose();  
-        titleLabel.dispose(); 
-        playButton.dispose();  
+        tituloJuego.dispose(); 
+        playSingleplayerButton.dispose();  
+        playMultiplayerButton.dispose();
         exitButton.dispose();  
     }
 }

@@ -4,9 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 
 public class Musica {
-    private Music mainMenuMusic;
-    private Music gameMusic;
-    private Music pauseMusic;
+	public static Music mainMenuMusic;
+	public static Music gameMusic;
+	public static Music pauseMusic;
 
     public Musica() {
         mainMenuMusic = Gdx.audio.newMusic(Gdx.files.internal("sonidos/musica/DarkSouls.mp3"));
@@ -14,25 +14,25 @@ public class Musica {
         pauseMusic = Gdx.audio.newMusic(Gdx.files.internal("sonidos/musica/DarkSouls.mp3"));
     }
 
-    public void playMainMenuMusic() {
+    public static void playMainMenuMusic() {
         stopAllMusic();
         mainMenuMusic.setLooping(true);
         mainMenuMusic.play();
     }
 
-    public void playGameMusic() {
+    public static void playGameMusic() {
         stopAllMusic();
         gameMusic.setLooping(true);
         gameMusic.play();
     }
 
-    public void playPauseMusic() {
+    public static void playPauseMusic() {
         stopAllMusic();
         pauseMusic.setLooping(true);
         pauseMusic.play();
     }
 
-    public void stopAllMusic() {
+    public static void stopAllMusic() {
         if (mainMenuMusic.isPlaying()) mainMenuMusic.stop();
         if (gameMusic.isPlaying()) gameMusic.stop();
         if (pauseMusic.isPlaying()) pauseMusic.stop();

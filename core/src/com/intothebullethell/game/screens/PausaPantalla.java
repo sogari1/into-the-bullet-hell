@@ -24,8 +24,7 @@ public class PausaPantalla implements Screen {
     public PausaPantalla(IntoTheBulletHell game, JuegoPantalla jugarPantalla) {
     	this.game = game;
     	this.jugarPantalla = jugarPantalla;
-    	
-        stage = new Stage(new ScreenViewport());
+        this.stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
         botonReanudar = new Boton(new Texto("Reanudar", 24, Color.WHITE, 0, 200));
@@ -46,10 +45,10 @@ public class PausaPantalla implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         
-        RenderManager.batch.begin();
+        RenderManager.begin();
         botonReanudar.draw(RenderManager.batch);
         botonMenuPrincipal.draw(RenderManager.batch);
-        RenderManager.batch.end();
+        RenderManager.end();
         
         stage.draw();
         if (botonReanudar.isClicked()) {
@@ -58,8 +57,7 @@ public class PausaPantalla implements Screen {
         }
 
         if (botonMenuPrincipal.isClicked()) {
-//        	JuegoPantalla.proyectiles.clear();
-             game.setScreen(new MenuPantalla(game));
+        	game.setScreen(new MenuPantalla(game));
         }
 
     }

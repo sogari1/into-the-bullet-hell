@@ -1,6 +1,5 @@
 package com.intothebullethell.game.entities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -11,11 +10,11 @@ public class Proyectil extends Sprite {
     private Vector2 posicion;
     private Vector2 direccion;
     private float velocidad;
-    private float daño;
+    private int daño;
     private boolean disparadoPorJugador;
     private Rectangle boundingBox;
 
-    public Proyectil(Texture texture, Vector2 posicion, Vector2 target, float velocidad, float daño, boolean disparadoPorJugador) {
+    public Proyectil(Texture texture, Vector2 posicion, Vector2 target, float velocidad, int daño, boolean disparadoPorJugador) {
         super(texture);
         this.posicion = new Vector2(posicion);
         this.direccion = new Vector2(target).sub(posicion).nor();
@@ -38,14 +37,11 @@ public class Proyectil extends Sprite {
         return boundingBox.overlaps(Entidad.getBoundingRectangle());
     }
 
-    public float getDaño() {
+    public int getDaño() {
         return daño;
     }
     public boolean isDisparadoPorJugador() {
         return disparadoPorJugador;
-    }
-    public boolean isOutOfScreen() {
-        return getX() + getWidth() < 0 || getX() > Gdx.graphics.getWidth() || getY() + getHeight() < 0 || getY() > Gdx.graphics.getHeight();
     }
     @Override
     public void draw(Batch batch) {

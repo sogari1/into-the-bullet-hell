@@ -30,22 +30,22 @@ public class Boton extends Actor {
     }
 
     public void setPosition(float x, float y) {
-        texto.setPosition(x, y); // Actualiza la posición del texto
-        bounds.setPosition(x, y - texto.getHeight()); // Actualiza los límites del botón
+        texto.setPosition(x, y);
+        bounds.setPosition(x, y - texto.getHeight()); 
     }
     public void centrarX() {
         float centerX = (Gdx.graphics.getWidth() - texto.getWidth()) / 2;
-        setPosition(centerX, texto.getY()); // Ajusta la posición del texto
+        setPosition(centerX, texto.getY()); 
     }
     public void centrarY() {
         float centerY = (Gdx.graphics.getHeight() - texto.getHeight()) / 2;
-        setPosition(texto.getX(), centerY); // Ajusta la posición del texto
+        setPosition(texto.getX(), centerY); 
     }
     public void setColor(Color color) {
-        texto.setColor(color); // Cambia el color del texto
+        texto.setColor(color); 
     }
 
     public void dispose() {
-        texto.dispose(); // Libera los recursos del texto
+        texto.dispose();
     }
 }

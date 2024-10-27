@@ -17,7 +17,7 @@ public class Escopeta extends Arma {
         Vector2 direction = new Vector2(target).sub(position).nor();
 
         for (int i = -2; i <= 2; i++) {
-            Vector2 spreadDirection = new Vector2(direction).rotateDeg(i * 5); // Ajusta el ángulo del spread 
+            Vector2 spreadDirection = new Vector2(direction).rotateDeg(i * 5); 
             Vector2 spreadTarget = new Vector2(position).add(spreadDirection.scl(1000));
             
             proyectiles.add(new Proyectil(proyectilTextura, position, spreadTarget, proyectilVelocidad, daño, true));

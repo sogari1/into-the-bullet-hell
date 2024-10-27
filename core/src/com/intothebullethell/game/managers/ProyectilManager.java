@@ -12,10 +12,12 @@ import com.intothebullethell.game.objects.guns.Arma;
 import java.util.ArrayList;
 
 public class ProyectilManager {
-    private ArrayList<Proyectil> proyectiles;
+    public ArrayList<Proyectil> proyectiles;
+    private TileColisionManager tileColisionManager;
 
-    public ProyectilManager() {
+    public ProyectilManager(TileColisionManager tileColisionManager) {
         this.proyectiles = new ArrayList<>();
+        this.tileColisionManager = tileColisionManager;
     }
 
     public void agregarProyectil(Proyectil proyectil) {
@@ -27,7 +29,7 @@ public class ProyectilManager {
             Proyectil proyectil = proyectiles.get(i);
             proyectil.update(delta);
             
-            if (chequearColisionProyectil(proyectil, enemigos, jugador)) {
+            if (chequearColisionProyectil(proyectil, enemigos, jugador) || tileColisionManager.isCollision(proyectil.getBoundingRectangle())) {
                 proyectiles.remove(i); 
             }
         }
@@ -41,10 +43,8 @@ public class ProyectilManager {
         }
         if (proyectil.collidesWith(jugador) && !proyectil.isDisparadoPorJugador()) {
             jugador.recibirDaño(proyectil.getDaño());
+            System.out.println("Jugador vida: " + jugador.getVidaActual());
             return true;
-        }
-        if (proyectil.isOutOfScreen()) {
-        	 return true;
         }
         return false;
     }

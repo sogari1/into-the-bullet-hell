@@ -4,60 +4,52 @@ package com.intothebullethell.game.ui;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.intothebullethell.game.entities.Jugador;
 import com.intothebullethell.game.managers.RecursoManager;
+import com.intothebullethell.game.managers.RenderManager;
 
 public class Hud {
-    private SpriteBatch batch;
     private Stage stage;
     private Jugador jugador;
     private Texture armaSprite;
-    private BitmapFont font;
-    private Label textoRonda, textoTiempo;
+    private Texto textoRonda, textoTiempo, textoMunicion, textoEnemigosRestantes;
     private int ronda;
 
     public Hud(SpriteBatch spriteBatch, Jugador jugador) {
-        this.batch = spriteBatch;
         this.jugador = jugador;
-
-        // Inicializa el stage con un viewport
         this.stage = new Stage(new ScreenViewport(), spriteBatch);
 
-        // Cargar la fuente y estilos de texto
-        font = new BitmapFont(); 
-        Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
-
-        textoRonda = new Label("Ronda: 1", labelStyle);
-        textoRonda.setPosition(10, Gdx.graphics.getHeight() - 30);
-        stage.addActor(textoRonda);
-
-        textoTiempo = new Label("Tiempo: 30", labelStyle);
-        textoTiempo.setPosition(10, Gdx.graphics.getHeight() - 60);
-        stage.addActor(textoTiempo);
-
+        textoRonda = new Texto("Ronda: 1", 20, Color.WHITE, 10, Gdx.graphics.getHeight() - 20);
+        textoRonda.setShadow(4, 4, Color.BLACK);
+        
+        textoTiempo = new Texto("Aleatorizando en: 30", 20, Color.WHITE, 10, Gdx.graphics.getHeight() - 20);
+        textoTiempo.setShadow(4, 4, Color.BLACK);
+        textoTiempo.centerX();
+        
+        textoMunicion = new Texto("", 20, Color.WHITE, 10, Gdx.graphics.getHeight() - 850);
+        textoMunicion.setShadow(4, 4, Color.BLACK);
+        
+        textoEnemigosRestantes = new Texto("Enemigos restantes: ", 20, Color.WHITE, 10, Gdx.graphics.getHeight() - 60);
+        textoEnemigosRestantes.setShadow(4, 4, Color.BLACK);
         updateWeaponSprite();
     }
 
     public void render() {
-        batch.begin();
+        RenderManager.begin();
         
-        int x = Gdx.graphics.getWidth() - (jugador.getVida() / 2 * RecursoManager.CORAZON_LLENO.getWidth()) - 10;
-        int y = Gdx.graphics.getHeight() - RecursoManager.CORAZON_LLENO.getHeight() - 10;
-        HudUtiles.drawHearts(batch, RecursoManager.CORAZON_LLENO, RecursoManager.CORAZON_MITAD, RecursoManager.CORAZON_VACIO, jugador.getVida(), jugador.getVida(), x, y);
-
-        if (armaSprite != null) {
-            batch.draw(armaSprite, Gdx.graphics.getWidth() - armaSprite.getWidth(), 0);
-        }
-
-        // Dibuja la información de munición usando HudUtils
-        HudUtiles.drawWeaponInfo(batch, jugador.getArmaEquipada(), font);
-
-        batch.end();
+        int x = Gdx.graphics.getWidth() - (jugador.getVidaMaxima() / 2 * RecursoManager.CORAZON_LLENO.getWidth());
+        int y = Gdx.graphics.getHeight() - RecursoManager.CORAZON_LLENO.getHeight();
+        
+        HudUtiles.drawHearts(RenderManager.batch, RecursoManager.CORAZON_LLENO, RecursoManager.CORAZON_MITAD, RecursoManager.CORAZON_VACIO, jugador.getVidaMaxima(), jugador.getVidaActual(), x, y);
+        HudUtiles.drawWeaponInfo(RenderManager.batch, jugador.getArmaEquipada(), textoMunicion);
+        RenderManager.batch.draw(armaSprite, Gdx.graphics.getWidth() - armaSprite.getWidth() * 3 - 20, 0, armaSprite.getWidth() * 3 - 10, armaSprite.getHeight() * 3);
+        textoRonda.draw(RenderManager.batch);
+        textoTiempo.draw(RenderManager.batch);
+        textoEnemigosRestantes.draw(RenderManager.batch);
+        RenderManager.end();
 
         stage.draw();
     }
@@ -68,17 +60,20 @@ public class Hud {
     }
 
     public void actualizarTemporizador(int tiempo) {
-        textoTiempo.setText("Tiempo: " + tiempo);
+        textoTiempo.setText("Aleatorizando en: " + tiempo + "s");
     }
-
+    public void actualizarEnemigosRestantes(int cantidad) {
+    	textoEnemigosRestantes.setText("Enemigos restantes: " + cantidad);
+    }
     public void updateWeaponSprite() {
-        if (jugador != null) {
-            armaSprite = jugador.getArmaTextura();
-        }
+    	armaSprite = jugador.getArmaTextura();
     }
 
     public void dispose() {
         stage.dispose();
-        font.dispose();
+        textoRonda.dispose();
+        textoTiempo.dispose();
+        textoMunicion.dispose();
+        textoEnemigosRestantes.dispose();
     }
 }
