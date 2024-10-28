@@ -13,7 +13,7 @@ public class TileColisionManager {
         this.collisionLayer = collisionLayer;
     }
 
-    public boolean isCollision(Rectangle boundingBox) {
+    public boolean esColision(Rectangle boundingBox) {
         if (collisionLayer != null) {
             int tileWidth = collisionLayer.getTileWidth();
             int tileHeight = collisionLayer.getTileHeight();
@@ -38,13 +38,13 @@ public class TileColisionManager {
     }
 
 
-    public void setPositionAndCheckCollision(Entidad entidad, float newX, float newY, float oldX, float oldY) {
+    public void setPosicionChequearColision(Entidad entidad, float newX, float newY, float oldX, float oldY) {
 //    	System.out.println("Entitdad moviendose: " + entidad.getClass().getSimpleName());
         entidad.setX(newX);
         entidad.setY(newY);
         entidad.updateBoundingBox();
 
-        if (isCollision(entidad.getBoundingBox())) {
+        if (esColision(entidad.getBoundingBox())) {
             entidad.setX(oldX);
             entidad.setY(oldY);
             entidad.updateBoundingBox();

@@ -8,21 +8,21 @@ import com.intothebullethell.game.objects.armas.Escopeta;
 import com.intothebullethell.game.objects.armas.Pistola;
 
 public class ArmaAleatoria {
-    private ArrayList<Arma> armas;
+    private ArrayList<Arma> listaArmas;
     private Random random;
 
     public ArmaAleatoria() {
-        this.armas = new ArrayList<>();
+        this.listaArmas = new ArrayList<>();
         this.random = new Random();
         inicializarArmas();
     }
 
     private void inicializarArmas() {
-        armas.add(new Pistola());
-        armas.add(new Escopeta());
+    	listaArmas.add(new Pistola());
+//        armas.listaArmas(new Escopeta());
     }
 
     public Arma obtenerArmaAleatoria() {
-        return armas.get(random.nextInt(armas.size()));
+        return listaArmas.get(random.nextInt(listaArmas.size()));
     }
 }

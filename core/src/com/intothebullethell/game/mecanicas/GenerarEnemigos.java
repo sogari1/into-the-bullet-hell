@@ -40,7 +40,6 @@ public class GenerarEnemigos {
         this.tileCollisionManager = tileCollisionManager;
         this.listaEnemigos = new ArrayList<>();
         this.random = new Random();
-        
     }
     public void generarEnemigos() {
         enemigos.clear();
@@ -48,44 +47,28 @@ public class GenerarEnemigos {
         for (int i = 0; i < numeroDeEnemigos; i++) {
             Vector2 spawnPosition;
             do {
-                spawnPosition = getUniqueSpawnPosition();
-            } while (isInsideCameraView(spawnPosition));
+                spawnPosition = crearSpawnUnico();
+            } while (isDentroCamaraJugador(spawnPosition));
 
-            Enemigo enemigo = createRandomEnemy(spawnPosition, jugador);
+            Enemigo enemigo = crearnEnemigoAleatorio(spawnPosition, jugador);
             enemigo.setPosition(spawnPosition.x, spawnPosition.y);
             enemigo.updateBoundingBox();
             enemigos.add(enemigo);
         }
+//        System.out.println("Cantidad de enemigos spawneados: " + enemigos.size());
         sumarNumeroDeEnemigos();
     }
-    public void initializeEnemies(int cantidad, Jugador jugador) {
-        enemigos.clear();
-        occupiedPositions.clear();
 
-        for (int i = 0; i < cantidad; i++) {
-            Vector2 spawnPosition;
-            do {
-                spawnPosition = getUniqueSpawnPosition();
-            } while (isInsideCameraView(spawnPosition));
-
-            Enemigo enemigo = createRandomEnemy(spawnPosition, jugador);
-            enemigo.setPosition(spawnPosition.x, spawnPosition.y);
-            enemigo.updateBoundingBox();
-            enemigos.add(enemigo);
-        }
-    }
-
-    private boolean isInsideCameraView(Vector2 position) {
+    private boolean isDentroCamaraJugador(Vector2 position) {
         float cameraLeft = camara.position.x - camara.viewportWidth / 2;
         float cameraRight = camara.position.x + camara.viewportWidth / 2;
         float cameraBottom = camara.position.y - camara.viewportHeight / 2;
         float cameraTop = camara.position.y + camara.viewportHeight / 2;
 
-        return position.x > cameraLeft && position.x < cameraRight &&
-               position.y > cameraBottom && position.y < cameraTop;
+        return position.x > cameraLeft && position.x < cameraRight && position.y > cameraBottom && position.y < cameraTop;
     }
 
-    private Vector2 getUniqueSpawnPosition() {
+    private Vector2 crearSpawnUnico() {
         int mapWidth = 50;
         int mapHeight = 50; 
         int tileWidth = 32; 
@@ -97,13 +80,14 @@ public class GenerarEnemigos {
                 (float) (Math.random() * (mapWidth - 1) * tileWidth),
                 (float) (Math.random() * (mapHeight - 1) * tileHeight)
             );
-        } while (occupiedPositions.contains(position) || !isPositionValid(position));
+        } while (occupiedPositions.contains(position) || !isPosicionValida(position));
 
         occupiedPositions.add(position);
+//        System.out.println(occupiedPositions);
         return position;
     }
 
-    private boolean isPositionValid(Vector2 position) {
+    private boolean isPosicionValida(Vector2 position) {
         int tileSize = 32; 
         int x = (int) position.x / tileSize;
         int y = (int) position.y / tileSize;
@@ -111,23 +95,25 @@ public class GenerarEnemigos {
         TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(0);
         if (x >= 0 && x < layer.getWidth() && y >= 0 && y < layer.getHeight()) {
             Rectangle boundingBox = new Rectangle(position.x, position.y, tileSize, tileSize);
-            return !tileCollisionManager.isCollision(boundingBox);
+            return !tileCollisionManager.esColision(boundingBox);
         }
         return false;
     }
 
-    private Enemigo createRandomEnemy(Vector2 spawnPosition, Jugador jugador) {
+    private Enemigo crearnEnemigoAleatorio(Vector2 spawnPosition, Jugador jugador) {
+    	inicializarListaEnemigos();
     	Enemigo enemigo;
-        listaEnemigos.add(new EnemigoNormal(jugador, enemigos, collisionLayer));
-        listaEnemigos.add(new EnemigoRapido(jugador, enemigos, collisionLayer));
-        listaEnemigos.add(new EnemigoFuerte(jugador, enemigos, collisionLayer));
-
-        enemigo = listaEnemigos.get(random.nextInt(listaEnemigos.size()));
+    	enemigo = listaEnemigos.get(random.nextInt(listaEnemigos.size()));
         enemigo.setPosition(spawnPosition.x, spawnPosition.y);
         return enemigo;
     }
     private int sumarNumeroDeEnemigos() {
         numeroDeEnemigos += 2;
         return numeroDeEnemigos;
+    }
+    private void inicializarListaEnemigos() {
+    	 listaEnemigos.add(new EnemigoNormal(jugador, enemigos, collisionLayer));
+         listaEnemigos.add(new EnemigoRapido(jugador, enemigos, collisionLayer));
+         listaEnemigos.add(new EnemigoFuerte(jugador, enemigos, collisionLayer));
     }
 }

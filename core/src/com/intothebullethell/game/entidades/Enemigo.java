@@ -32,6 +32,7 @@ public abstract class Enemigo extends Entidad {
         moverHaciaJugador(delta);
  
         tiempoAtaque -= delta;
+//        System.out.println("Tiempo antes del ataque: " + tiempoAtaque );
         if (tiempoAtaque <= 0) {
             atacar();
             tiempoAtaque = intervaloAtaque;
@@ -44,7 +45,7 @@ public abstract class Enemigo extends Entidad {
         Vector2 target = new Vector2(jugador.getX(), jugador.getY());
         Vector2 direction = target.sub(position).nor();
 
-        velocity.set(direction).scl(velocidad * 2);
+        velocity.set(direction).scl(velocidad);
 
         mover(delta, velocity);
     }

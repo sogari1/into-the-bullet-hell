@@ -29,7 +29,7 @@ public class ProyectilManager {
             Proyectil proyectil = proyectiles.get(i);
             proyectil.update(delta);
             
-            if (chequearColisionProyectil(proyectil, enemigos, jugador) || tileColisionManager.isCollision(proyectil.getBoundingRectangle())) {
+            if (chequearColisionProyectil(proyectil, enemigos, jugador) || tileColisionManager.esColision(proyectil.getBoundingRectangle())) {
                 proyectiles.remove(i); 
             }
         }
@@ -38,12 +38,13 @@ public class ProyectilManager {
         for (Enemigo enemigo : enemigos) {
             if (proyectil.collidesWith(enemigo) && proyectil.isDisparadoPorJugador()) {
                 enemigo.recibirDaño(proyectil.getDaño());
+//                System.out.println(enemigo.getClass().getSimpleName() + "recibio daño");
                 return true;
             }
         }
         if (proyectil.collidesWith(jugador) && !proyectil.isDisparadoPorJugador()) {
             jugador.recibirDaño(proyectil.getDaño());
-            System.out.println("Jugador vida: " + jugador.getVidaActual());
+//            System.out.println("Jugador vida: " + jugador.getVidaActual());
             return true;
         }
         return false;

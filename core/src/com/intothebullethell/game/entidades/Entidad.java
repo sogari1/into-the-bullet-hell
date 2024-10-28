@@ -33,7 +33,7 @@ public abstract class Entidad extends Sprite {
         float newX = getX() + velocity.x * delta;
         float newY = getY() + velocity.y * delta;
 
-        tileCollisionManager.setPositionAndCheckCollision(this, newX, newY, oldX, oldY);
+        tileCollisionManager.setPosicionChequearColision(this, newX, newY, oldX, oldY);
     }
 
 

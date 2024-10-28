@@ -116,6 +116,7 @@ public class JuegoPantalla implements Screen {
              hud.actualizarRonda(ronda);
              generadorEnemigos.generarEnemigos();
          }
+//         System.out.println("Enemigos restantes: " + enemigos.size());
          hud.actualizarEnemigosRestantes(enemigos.size());
          hud.actualizarTemporizador(Tiempo.getTiempo());
          hud.render();

@@ -8,7 +8,7 @@ import com.intothebullethell.game.globales.RecursoRuta;
 
 public class EnemigoRapido extends Enemigo {
     public EnemigoRapido(Jugador jugador, ArrayList<Enemigo> enemigos, TiledMapTileLayer collisionLayer) {
-        super(RecursoRuta.ENEMIGO, 4, 30, 3f, 1, 75, RecursoRuta.PROYECTIL_ESCOPETA, jugador, enemigos, collisionLayer);
+        super(RecursoRuta.ENEMIGO, 10, 30, 10f, 1, 100, RecursoRuta.PROYECTIL_ESCOPETA, jugador, enemigos, collisionLayer);
     }
     @Override
     public void atacar() {
