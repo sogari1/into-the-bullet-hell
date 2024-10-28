@@ -3,7 +3,7 @@ package com.intothebullethell.game.ui;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.intothebullethell.game.objects.guns.Arma;
+import com.intothebullethell.game.objects.armas.Arma;
 
 public class HudUtiles {
 	

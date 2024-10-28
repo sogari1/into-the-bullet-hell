@@ -7,8 +7,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.intothebullethell.game.entities.Jugador;
-import com.intothebullethell.game.managers.RecursoManager;
+import com.intothebullethell.game.entidades.Jugador;
+import com.intothebullethell.game.globales.RecursoRuta;
 import com.intothebullethell.game.managers.RenderManager;
 
 public class Hud {
@@ -40,10 +40,10 @@ public class Hud {
     public void render() {
         RenderManager.begin();
         
-        int x = Gdx.graphics.getWidth() - (jugador.getVidaMaxima() / 2 * RecursoManager.CORAZON_LLENO.getWidth());
-        int y = Gdx.graphics.getHeight() - RecursoManager.CORAZON_LLENO.getHeight();
+        int x = Gdx.graphics.getWidth() - (jugador.getVidaMaxima() / 2 * RecursoRuta.CORAZON_LLENO.getWidth());
+        int y = Gdx.graphics.getHeight() - RecursoRuta.CORAZON_LLENO.getHeight();
         
-        HudUtiles.drawHearts(RenderManager.batch, RecursoManager.CORAZON_LLENO, RecursoManager.CORAZON_MITAD, RecursoManager.CORAZON_VACIO, jugador.getVidaMaxima(), jugador.getVidaActual(), x, y);
+        HudUtiles.drawHearts(RenderManager.batch, RecursoRuta.CORAZON_LLENO, RecursoRuta.CORAZON_MITAD, RecursoRuta.CORAZON_VACIO, jugador.getVidaMaxima(), jugador.getVidaActual(), x, y);
         HudUtiles.drawWeaponInfo(RenderManager.batch, jugador.getArmaEquipada(), textoMunicion);
         RenderManager.batch.draw(armaSprite, Gdx.graphics.getWidth() - armaSprite.getWidth() * 3 - 20, 0, armaSprite.getWidth() * 3 - 10, armaSprite.getHeight() * 3);
         textoRonda.draw(RenderManager.batch);

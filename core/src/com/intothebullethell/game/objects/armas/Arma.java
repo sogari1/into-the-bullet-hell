@@ -1,11 +1,11 @@
-package com.intothebullethell.game.objects.guns;
+package com.intothebullethell.game.objects.armas;
 
 import java.util.ArrayList;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
-import com.intothebullethell.game.entities.Proyectil;
-import com.intothebullethell.sound.EfectoSonidoArma;
+import com.intothebullethell.game.entidades.Proyectil;
+import com.intothebullethell.sonido.EfectoSonidoArma;
 
 public abstract class Arma {
     protected String nombre;

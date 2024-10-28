@@ -1,4 +1,4 @@
-package com.intothebullethell.game.entities;
+package com.intothebullethell.game.entidades;
 
 import java.util.ArrayList;
 
@@ -13,11 +13,10 @@ public abstract class Enemigo extends Entidad {
     protected ArrayList<Enemigo> enemigos;
     protected float projectilVelocidad;
     protected int daño;
-    protected boolean dispersion;
     protected TiledMapTileLayer collisionLayer;
     protected ProyectilManager proyectilManager;
 
-    public Enemigo(Texture texture, int vida, int velocidad, float intervaloAtaque, int daño, float projectilVelocidad, boolean dispersion, Texture projectilTextura, Jugador jugador, ArrayList<Enemigo> enemigos, TiledMapTileLayer collisionLayer) {
+    public Enemigo(Texture texture, int vida, int velocidad, float intervaloAtaque, int daño, float projectilVelocidad, Texture projectilTextura, Jugador jugador, ArrayList<Enemigo> enemigos, TiledMapTileLayer collisionLayer) {
         super(texture, vida, velocidad, projectilTextura, collisionLayer);
         this.jugador = jugador;
         this.enemigos = enemigos;
@@ -25,7 +24,6 @@ public abstract class Enemigo extends Entidad {
         this.tiempoAtaque = intervaloAtaque;
         this.daño = daño;
         this.projectilVelocidad = projectilVelocidad;
-        this.dispersion = dispersion;
         this.collisionLayer = collisionLayer;
     }
 
@@ -59,21 +57,6 @@ public abstract class Enemigo extends Entidad {
 
     @Override
     public void atacar() {
-        Vector2 position = new Vector2(getX() + getWidth() / 2, getY() + getHeight() / 2);
-        Vector2 target = new Vector2(jugador.getX() + jugador.getWidth() / 2, jugador.getY() + jugador.getHeight() / 2);
-        Vector2 direction = target.cpy().sub(position).nor();
-
-        if (dispersion) {
-            for (int i = -2; i <= 2; i++) {
-                Vector2 spreadDirection = new Vector2(direction).rotateDeg(i * 10);
-                Vector2 spreadTarget = new Vector2(position).add(spreadDirection.scl(1000));
-                Proyectil proyectil = new Proyectil(getProjectilTextura(), position, spreadTarget, projectilVelocidad, daño, false);
-                proyectilManager.agregarProyectil(proyectil); 
-            }
-        } else {
-            Proyectil proyectil = new Proyectil(getProjectilTextura(), position, target, projectilVelocidad, daño, false);
-            proyectilManager.agregarProyectil(proyectil); 
-        }
     }
 
 

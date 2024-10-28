@@ -6,12 +6,12 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.intothebullethell.game.managers.AssetManagerJuego;
+import com.intothebullethell.game.globales.AssetRuta;
 
 public class Texto {
     private BitmapFont bitmapFont;
     private GlyphLayout layout;
-    private String fuente = AssetManagerJuego.FUENTE;
+    private String fuente = AssetRuta.FUENTE;
     private String text = "";
     private int size = 12;
     private Color color = Color.WHITE;

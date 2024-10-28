@@ -1,15 +1,15 @@
-package com.intothebullethell.game.objects.guns;
+package com.intothebullethell.game.objects.armas;
 
 import java.util.ArrayList;
 
 import com.badlogic.gdx.math.Vector2;
-import com.intothebullethell.game.entities.Proyectil;
-import com.intothebullethell.game.managers.RecursoManager;
-import com.intothebullethell.game.managers.SonidoManager;
+import com.intothebullethell.game.entidades.Proyectil;
+import com.intothebullethell.game.globales.RecursoRuta;
+import com.intothebullethell.game.globales.SonidoRuta;
 
 public class Escopeta extends Arma {
     public Escopeta() {
-        super("Escopeta", 150, 3, 1.5f, 8, false, 64, RecursoManager.PROYECTIL_ESCOPETA, RecursoManager.ARMA_ESCOPETA, SonidoManager.DISPARIO_ESCOPETA);
+        super("Escopeta", 150, 3, 1.5f, 8, false, 64, RecursoRuta.PROYECTIL_ESCOPETA, RecursoRuta.ARMA_ESCOPETA, SonidoRuta.DISPARIO_ESCOPETA);
     }
 
     @Override

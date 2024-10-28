@@ -1,6 +1,6 @@
-package com.intothebullethell.game.managers;
+package com.intothebullethell.game.globales;
 
-public class AssetManagerJuego {
+public class AssetRuta {
 	//CURSOR
 	public static final String CURSOR = "imagenes/otros/cursor/crosshair.png";
 	

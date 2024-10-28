@@ -1,4 +1,4 @@
-package com.intothebullethell.game.entities;
+package com.intothebullethell.game.entidades;
 
 import java.util.ArrayList;
 
@@ -14,7 +14,7 @@ import com.intothebullethell.game.inputs.InputManager;
 import com.intothebullethell.game.managers.ProyectilManager;
 import com.intothebullethell.game.managers.TileColisionManager;
 import com.intothebullethell.game.mecanicas.ArmaAleatoria;
-import com.intothebullethell.game.objects.guns.Arma;
+import com.intothebullethell.game.objects.armas.Arma;
 import com.intothebullethell.game.ui.Hud;
 
 public class Jugador extends Entidad {
@@ -67,8 +67,8 @@ public class Jugador extends Entidad {
         actualizarMovimiento();
         manejarDisparos(delta);
         actualizarSprite();
-        proyectilManager.actualizarProyectiles(delta, enemigos, this);
         actualizarCamara();
+        proyectilManager.actualizarProyectiles(delta, enemigos, this);
     }
 
     private void actualizarMovimiento() {

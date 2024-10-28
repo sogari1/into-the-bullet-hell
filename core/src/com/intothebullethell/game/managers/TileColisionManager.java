@@ -3,7 +3,7 @@ package com.intothebullethell.game.managers;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.math.Rectangle;
-import com.intothebullethell.game.entities.Entidad;
+import com.intothebullethell.game.entidades.Entidad;
 import com.intothebullethell.game.globales.ConfiguracionJuego;
 
 public class TileColisionManager {
@@ -27,7 +27,7 @@ public class TileColisionManager {
             for (int x = startX; x <= endX; x++) {
                 for (int y = startY; y <= endY; y++) {
                     Cell cell = collisionLayer.getCell(x, y);
-                    if (cell != null && cell.getTile() != null && cell.getTile().getProperties().containsKey(ConfiguracionJuego.TILECOLISION)) {
+                    if (cell != null && cell.getTile() != null && cell.getTile().getProperties().containsKey(ConfiguracionJuego.TILE_COLISION)) {
 //                        System.out.println("Collision detected at: (" + x + ", " + y + ")");
                         return true;
                     }

@@ -1,9 +1,9 @@
-package com.intothebullethell.game.managers;
+package com.intothebullethell.game.globales;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class RecursoManager {
+public class RecursoRuta {
     
     //JUGADOR
     public static final TextureRegion SPRITE_ARRIBA = new TextureRegion(new Texture("imagenes/personaje/kurumiUp.png"));

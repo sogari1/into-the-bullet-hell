@@ -1,6 +1,6 @@
 package com.intothebullethell.game.mecanicas;
 
-import com.intothebullethell.game.entities.Jugador;
+import com.intothebullethell.game.entidades.Jugador;
 
 public class Tiempo extends Thread {
     private static int tiempo;

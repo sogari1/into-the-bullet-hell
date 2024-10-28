@@ -1,4 +1,4 @@
-package com.intothebullethell.game.screens;
+package com.intothebullethell.game.pantallas;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;

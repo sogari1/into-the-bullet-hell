@@ -1,4 +1,4 @@
-package com.intothebullethell.sound;
+package com.intothebullethell.sonido;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 

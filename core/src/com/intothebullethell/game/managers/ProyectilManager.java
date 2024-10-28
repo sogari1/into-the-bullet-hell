@@ -4,10 +4,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.intothebullethell.game.entities.Enemigo;
-import com.intothebullethell.game.entities.Jugador;
-import com.intothebullethell.game.entities.Proyectil;
-import com.intothebullethell.game.objects.guns.Arma;
+import com.intothebullethell.game.entidades.Enemigo;
+import com.intothebullethell.game.entidades.Jugador;
+import com.intothebullethell.game.entidades.Proyectil;
+import com.intothebullethell.game.objects.armas.Arma;
 
 import java.util.ArrayList;
 

@@ -1,8 +1,8 @@
 package com.intothebullethell.game;
 
 import com.badlogic.gdx.Game;
-import com.intothebullethell.game.screens.MenuPantalla;
-import com.intothebullethell.sound.Musica;
+import com.intothebullethell.game.pantallas.MenuPantalla;
+import com.intothebullethell.sonido.Musica;
 
 public class IntoTheBulletHell extends Game {
     

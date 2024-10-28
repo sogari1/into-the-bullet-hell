@@ -2,8 +2,8 @@ package com.intothebullethell.game.inputs;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
+import com.intothebullethell.game.entidades.Jugador;
 import com.badlogic.gdx.InputProcessor;
-import com.intothebullethell.game.entities.Jugador;
 
 public class InputManager implements InputProcessor {
     private Jugador jugador;

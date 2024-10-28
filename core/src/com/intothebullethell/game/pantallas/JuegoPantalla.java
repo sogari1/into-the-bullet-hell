@@ -1,4 +1,4 @@
-package com.intothebullethell.game.screens;
+package com.intothebullethell.game.pantallas;
 
 import java.util.ArrayList;
 
@@ -13,18 +13,18 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.intothebullethell.game.IntoTheBulletHell;
-import com.intothebullethell.game.entities.Enemigo;
-import com.intothebullethell.game.entities.Jugador;
+import com.intothebullethell.game.entidades.Enemigo;
+import com.intothebullethell.game.entidades.Jugador;
+import com.intothebullethell.game.globales.AssetRuta;
+import com.intothebullethell.game.globales.RecursoRuta;
 import com.intothebullethell.game.inputs.InputManager;
-import com.intothebullethell.game.managers.AssetManagerJuego;
 import com.intothebullethell.game.managers.ProyectilManager;
-import com.intothebullethell.game.managers.RecursoManager;
 import com.intothebullethell.game.managers.RenderManager;
 import com.intothebullethell.game.managers.TileColisionManager;
 import com.intothebullethell.game.mecanicas.GenerarEnemigos;
 import com.intothebullethell.game.mecanicas.Tiempo;
 import com.intothebullethell.game.ui.Hud;
-import com.intothebullethell.sound.Musica;
+import com.intothebullethell.sonido.Musica;
 
 public class JuegoPantalla implements Screen {
 
@@ -39,12 +39,12 @@ public class JuegoPantalla implements Screen {
     private GameOverPantalla gameOverPantalla;
     private ProyectilManager proyectilManager;
     private ArrayList<Enemigo> enemigos;
-    private InputManager inputManager = new InputManager();
+    private InputManager inputManager;
+    private TiledMapTileLayer collisionLayer;
+    private TileColisionManager collisionManager;
     
     private boolean pausado;
     private int ronda;
-    private int numeroDeEnemigos = 10;
-    private int tiempoNum;
     
     public JuegoPantalla(IntoTheBulletHell game) {
         this.game = game;
@@ -54,25 +54,26 @@ public class JuegoPantalla implements Screen {
         this.pausaPantalla = new PausaPantalla(game, this);
         this.gameOverPantalla = new GameOverPantalla(game);
     	this.camara = new OrthographicCamera();
+    	this.inputManager = new InputManager();
+    	Gdx.input.setInputProcessor(inputManager);
            
-    	TiledMapTileLayer collisionLayer = (TiledMapTileLayer) RenderManager.mapa.getLayers().get(0);
-        TileColisionManager collisionManager = new TileColisionManager(collisionLayer);
+    	this.collisionLayer = (TiledMapTileLayer) RenderManager.mapa.getLayers().get(0);
+        this.collisionManager = new TileColisionManager(collisionLayer);
             
         this.proyectilManager = new ProyectilManager(collisionManager);
-        this.jugador = new Jugador(RecursoManager.SPRITE_ABAJO, RecursoManager.SPRITE_ARRIBA,  RecursoManager.SPRITE_ABAJO, RecursoManager.SPRITE_IZQUIERDA,  RecursoManager.SPRITE_DERECHA, camara, inputManager, collisionLayer, collisionManager);
+        this.jugador = new Jugador(RecursoRuta.SPRITE_ABAJO, RecursoRuta.SPRITE_ARRIBA,  RecursoRuta.SPRITE_ABAJO, RecursoRuta.SPRITE_IZQUIERDA,  RecursoRuta.SPRITE_DERECHA, camara, inputManager, collisionLayer, collisionManager);
         this.jugador.setPosition(15 * collisionLayer.getTileWidth(), 15 * collisionLayer.getTileHeight());
         this.jugador.setProyectilManager(proyectilManager); 
         this.hud = new Hud(RenderManager.batch, jugador);
         this.jugador.setHud(hud);
 
         this.generadorEnemigos = new GenerarEnemigos(camara, RenderManager.mapa, enemigos, jugador, collisionLayer, collisionManager);
-        this.generadorEnemigos.generarEnemigos(numeroDeEnemigos);
+        this.generadorEnemigos.generarEnemigos();
         this.jugador.setEnemies(enemigos);
         this.tiempo = new Tiempo(jugador);
         tiempo.start();
         
-        setCustomCursor(AssetManagerJuego.CURSOR);
-
+        setCustomCursor(AssetRuta.CURSOR);
         
         Musica musica = game.getMusica();
         Musica.gameMusic = musica.getGameMusic();
@@ -80,56 +81,57 @@ public class JuegoPantalla implements Screen {
         Musica.gameMusic.play();
         
         this.stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(inputManager);
     }
 
     @Override
     public void render(float delta) {
+    	Gdx.gl.glClearColor(0, 0, 0, 1);
+    	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         if (inputManager.isPausaSolicitada()) {
         	pause();
         }
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         if (!pausado) {
-
-        	RenderManager.renderizar.setView(camara);
-        	RenderManager.renderizar.render();
-            
-            jugador.update(delta);
-
-            if (jugador.chequearMuerte()) {
-                gameOver(); 
-            }
-            for (Enemigo enemigo : enemigos) {
-            	enemigo.setProyectilManager(proyectilManager);
-            	enemigo.update(delta);
-            }
-
-            if (enemigos.isEmpty()) {
-                ronda++;
-                hud.actualizarRonda(ronda);
-                generadorEnemigos.generarEnemigos(calcularNumeroDeEnemigos());
-            }
-            hud.actualizarEnemigosRestantes(enemigos.size());
-            RenderManager.batchRender.begin();
+        	RenderManager.renderizar(camara);
+        	actualizarObjetos(delta);          
             dibujarObjetos(RenderManager.batchRender);
-            RenderManager.batchRender.end();
-            
-            proyectilManager.actualizarProyectiles(delta, enemigos, jugador);
-            stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-            stage.draw();
-            
-            hud.render();
-            tiempoNum = Tiempo.getTiempo();
-            hud.actualizarTemporizador(tiempoNum);
         }
 
     }
     
     @Override
     public void show() {}
+    private void actualizarObjetos(float delta) {
+    	 jugador.update(delta);
 
+         if (jugador.chequearMuerte()) {
+             gameOver(); 
+         }
+         for (Enemigo enemigo : enemigos) {
+         	enemigo.setProyectilManager(proyectilManager);
+         	enemigo.update(delta);
+         }
+
+         if (enemigos.isEmpty()) {
+             ronda++;
+             hud.actualizarRonda(ronda);
+             generadorEnemigos.generarEnemigos();
+         }
+         hud.actualizarEnemigosRestantes(enemigos.size());
+         hud.actualizarTemporizador(Tiempo.getTiempo());
+         hud.render();
+         proyectilManager.actualizarProyectiles(delta, enemigos, jugador);
+    }
+    private void dibujarObjetos(SpriteBatch batch) {
+    	RenderManager.batchRender.begin();
+    	jugador.draw(batch);
+    	for (Enemigo enemigo : enemigos) {
+    		enemigo.draw(batch);
+    		}
+    	proyectilManager.draw(batch);
+        RenderManager.batchRender.end();
+        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        stage.draw();
+   }
     @Override
     public void resize(int width, int height) {
         camara.viewportWidth = width - 320;
@@ -140,7 +142,7 @@ public class JuegoPantalla implements Screen {
     @Override
     public void dispose() {
     	RenderManager.mapa.dispose();
-    	RenderManager.renderizar.dispose();
+    	RenderManager.render.dispose();
         stage.dispose();
         hud.dispose(); 
         Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow); 
@@ -158,6 +160,7 @@ public class JuegoPantalla implements Screen {
     public void resume() {
         pausado = false;
         tiempo.reanudar(); 
+        Musica.stopAllMusic();
         Musica.gameMusic.play();
     }
     public void gameOver() {
@@ -171,16 +174,5 @@ public class JuegoPantalla implements Screen {
         Cursor cursor = Gdx.graphics.newCursor(pixmap, pixmap.getWidth() / 2, pixmap.getHeight() / 2);
         Gdx.graphics.setCursor(cursor);
         pixmap.dispose(); 
-    }
-    private void dibujarObjetos(SpriteBatch batch) {
-        jugador.draw(batch);
-        for (Enemigo enemigo : enemigos) {
-            enemigo.draw(batch);
-        }
-        proyectilManager.draw(batch);
-    }
-    private int calcularNumeroDeEnemigos() {
-        numeroDeEnemigos += 2;
-        return numeroDeEnemigos;
     }
 }

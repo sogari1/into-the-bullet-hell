@@ -2,6 +2,7 @@ package com.intothebullethell.game.mecanicas;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -9,20 +10,25 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.intothebullethell.game.entities.Enemigo;
-import com.intothebullethell.game.entities.EnemigoNormal;
-import com.intothebullethell.game.entities.EnemigoRapido;
-import com.intothebullethell.game.entities.Jugador;
+import com.intothebullethell.game.entidades.Enemigo;
+import com.intothebullethell.game.entidades.EnemigoFuerte;
+import com.intothebullethell.game.entidades.EnemigoNormal;
+import com.intothebullethell.game.entidades.EnemigoRapido;
+import com.intothebullethell.game.entidades.Jugador;
 import com.intothebullethell.game.managers.TileColisionManager;
 
 public class GenerarEnemigos {
     private OrthographicCamera camara;
     private TiledMap map;
     private ArrayList<Enemigo> enemigos;
+    private ArrayList<Enemigo> listaEnemigos;
     private Set<Vector2> occupiedPositions;
     private Jugador jugador; 
     private TiledMapTileLayer collisionLayer; 
     private TileColisionManager tileCollisionManager;
+    private Random random;
+    
+    private int numeroDeEnemigos = 10;
 
     public GenerarEnemigos(OrthographicCamera camara, TiledMap map, ArrayList<Enemigo> enemigos, Jugador jugador, TiledMapTileLayer collisionLayer, TileColisionManager tileCollisionManager) {
         this.camara = camara;
@@ -32,22 +38,25 @@ public class GenerarEnemigos {
         this.jugador = jugador;
         this.collisionLayer = collisionLayer;
         this.tileCollisionManager = tileCollisionManager;
+        this.listaEnemigos = new ArrayList<>();
+        this.random = new Random();
+        
     }
-    public void generarEnemigos(int cantidad) {
+    public void generarEnemigos() {
         enemigos.clear();
         occupiedPositions.clear();
-
-        for (int i = 0; i < cantidad; i++) {
+        for (int i = 0; i < numeroDeEnemigos; i++) {
             Vector2 spawnPosition;
             do {
                 spawnPosition = getUniqueSpawnPosition();
             } while (isInsideCameraView(spawnPosition));
 
-            Enemigo enemy = createRandomEnemy(spawnPosition, jugador);
-            enemy.setPosition(spawnPosition.x, spawnPosition.y);
-            enemy.updateBoundingBox();
-            enemigos.add(enemy);
+            Enemigo enemigo = createRandomEnemy(spawnPosition, jugador);
+            enemigo.setPosition(spawnPosition.x, spawnPosition.y);
+            enemigo.updateBoundingBox();
+            enemigos.add(enemigo);
         }
+        sumarNumeroDeEnemigos();
     }
     public void initializeEnemies(int cantidad, Jugador jugador) {
         enemigos.clear();
@@ -59,10 +68,10 @@ public class GenerarEnemigos {
                 spawnPosition = getUniqueSpawnPosition();
             } while (isInsideCameraView(spawnPosition));
 
-            Enemigo enemy = createRandomEnemy(spawnPosition, jugador);
-            enemy.setPosition(spawnPosition.x, spawnPosition.y);
-            enemy.updateBoundingBox();
-            enemigos.add(enemy);
+            Enemigo enemigo = createRandomEnemy(spawnPosition, jugador);
+            enemigo.setPosition(spawnPosition.x, spawnPosition.y);
+            enemigo.updateBoundingBox();
+            enemigos.add(enemigo);
         }
     }
 
@@ -77,10 +86,10 @@ public class GenerarEnemigos {
     }
 
     private Vector2 getUniqueSpawnPosition() {
-        int mapWidth = 50; // Ajusta según el tamaño de tu mapa
-        int mapHeight = 50; // Ajusta según el tamaño de tu mapa
-        int tileWidth = 32; // Tamaño del tile
-        int tileHeight = 32; // Tamaño del tile
+        int mapWidth = 50;
+        int mapHeight = 50; 
+        int tileWidth = 32; 
+        int tileHeight = 32; 
 
         Vector2 position;
         do {
@@ -95,7 +104,7 @@ public class GenerarEnemigos {
     }
 
     private boolean isPositionValid(Vector2 position) {
-        int tileSize = 32; // Tamaño del tile
+        int tileSize = 32; 
         int x = (int) position.x / tileSize;
         int y = (int) position.y / tileSize;
 
@@ -108,16 +117,17 @@ public class GenerarEnemigos {
     }
 
     private Enemigo createRandomEnemy(Vector2 spawnPosition, Jugador jugador) {
-        Enemigo enemy;
-        double randomValue = Math.random();
+    	Enemigo enemigo;
+        listaEnemigos.add(new EnemigoNormal(jugador, enemigos, collisionLayer));
+        listaEnemigos.add(new EnemigoRapido(jugador, enemigos, collisionLayer));
+        listaEnemigos.add(new EnemigoFuerte(jugador, enemigos, collisionLayer));
 
-        if (randomValue < 0.5) {
-            enemy = new EnemigoRapido(jugador, enemigos, collisionLayer);
-        } else {
-            enemy = new EnemigoNormal(jugador, enemigos, collisionLayer); 
-        }
-
-        enemy.setPosition(spawnPosition.x, spawnPosition.y);
-        return enemy;
+        enemigo = listaEnemigos.get(random.nextInt(listaEnemigos.size()));
+        enemigo.setPosition(spawnPosition.x, spawnPosition.y);
+        return enemigo;
+    }
+    private int sumarNumeroDeEnemigos() {
+        numeroDeEnemigos += 2;
+        return numeroDeEnemigos;
     }
 }
