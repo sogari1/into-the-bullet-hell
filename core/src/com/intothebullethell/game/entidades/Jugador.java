@@ -18,12 +18,11 @@ import com.intothebullethell.game.objects.armas.Arma;
 import com.intothebullethell.game.ui.Hud;
 
 public class Jugador extends Entidad {
-    private Vector2 velocity = new Vector2();
+    public Vector2 velocity = new Vector2();
     private Vector2 mousePosition = new Vector2();
     private Arma armaEquipada;
     private ArmaAleatoria armaAleatoria;
     private OrthographicCamera camara;
-    private ArrayList<Proyectil> proyectiles;
     private ArrayList<Enemigo> enemigos;
     private TextureRegion upSprite, downSprite, leftSprite, rightSprite;
     private Hud hud;
@@ -43,7 +42,6 @@ public class Jugador extends Entidad {
         this.downSprite = downSprite;
         this.leftSprite = leftSprite;
         this.rightSprite = rightSprite;
-        this.proyectiles = new ArrayList<>();
         this.camara = camara;
         this.vidaActual = vidaMaxima;
         this.armaAleatoria = new ArmaAleatoria();
@@ -59,12 +57,6 @@ public class Jugador extends Entidad {
         super.draw(batch); 
         proyectilManager.draw(batch);
 
-    }
-
-    public void dispose() {
-        for (Proyectil proyectil : proyectiles) {
-            proyectil.getTexture().dispose();
-        }
     }
 
     @Override
@@ -85,21 +77,24 @@ public class Jugador extends Entidad {
     }
 
     private void actualizarMovimiento() {
-        velocity.set(0, 0);
-        if (inputManager.upPressed && !inputManager.downPressed) {
-            velocity.y = velocidad;  
-        } else if (!inputManager.upPressed && inputManager.downPressed) {
-            velocity.y = -velocidad; 
-        }
-
-        if (inputManager.leftPressed && !inputManager.rightPressed) {
-            velocity.x = -velocidad;
-        } else if (inputManager.rightPressed && !inputManager.leftPressed) {
-            velocity.x = velocidad; 
-        }
         mover(Gdx.graphics.getDeltaTime(), velocity);
     }
+    
+    public void moverArriba() {
+        velocity.y = velocidad;
+    }
 
+    public void moverAbajo() {
+        velocity.y = -velocidad;
+    }
+
+    public void moverIzquierda() {
+        velocity.x = -velocidad;
+    }
+
+    public void moverDerecha() {
+        velocity.x = velocidad;
+    }
     private void manejarDisparos(float delta) {
         if (disparando) {
             shootTimer -= delta;

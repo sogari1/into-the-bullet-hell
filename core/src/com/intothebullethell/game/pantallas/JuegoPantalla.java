@@ -95,12 +95,12 @@ public class JuegoPantalla implements Screen {
         	actualizarObjetos(delta);          
             dibujarObjetos(RenderManager.batchRender);
         }
-
     }
     
     @Override
     public void show() {}
     private void actualizarObjetos(float delta) {
+    	manejarJuegoInputs();
     	 jugador.update(delta);
 
          if (jugador.chequearMuerte()) {
@@ -116,7 +116,6 @@ public class JuegoPantalla implements Screen {
              hud.actualizarRonda(ronda);
              generadorEnemigos.generarEnemigos();
          }
-//         System.out.println("Enemigos restantes: " + enemigos.size());
          hud.actualizarEnemigosRestantes(enemigos.size());
          hud.actualizarTemporizador(Tiempo.getTiempo());
          hud.render();
@@ -168,6 +167,38 @@ public class JuegoPantalla implements Screen {
     	Musica.gameMusic.pause();
     	game.setScreen(gameOverPantalla);
     }
+    private void manejarJuegoInputs() {
+        if (inputManager.isUpPressed() && inputManager.isDownPressed()) {
+            jugador.velocity.y = 0;
+        } else if (inputManager.isUpPressed()) {
+            jugador.moverArriba();
+        } else if (inputManager.isDownPressed()) {
+            jugador.moverAbajo();
+        } else {
+            jugador.velocity.y = 0;
+        }
+
+        if (inputManager.isLeftPressed() && inputManager.isRightPressed()) {
+            jugador.velocity.x = 0;
+        } else if (inputManager.isLeftPressed()) {
+            jugador.moverIzquierda();
+        } else if (inputManager.isRightPressed()) {
+            jugador.moverDerecha();
+        } else {
+            jugador.velocity.x = 0;
+        }
+
+        if (inputManager.isRecargarPressed()) {
+            jugador.recargarArma();
+        }
+        
+        if (inputManager.isDisparandoJustPressed()) {
+            jugador.setDisparando(true);
+        } else if (inputManager.isDisparandoJustReleased()) {
+            jugador.setDisparando(false);
+        }
+    }
+
     @Override
     public void hide() {}
     private void setCustomCursor(String cursorPath) {
