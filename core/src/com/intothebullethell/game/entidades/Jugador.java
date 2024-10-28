@@ -29,7 +29,11 @@ public class Jugador extends Entidad {
     private Hud hud;
     private InputManager inputManager;
     private ProyectilManager proyectilManager;
+    
     private float shootTimer = 0;
+    private float opacidad = 1.0f;
+    private float escudoCoolDown = 0;
+    private final float escudoCoolDownMaximo = 2.5f; 
     private int vidaActual;
     private boolean disparando = false;
 
@@ -52,8 +56,9 @@ public class Jugador extends Entidad {
     @Override
     public void draw(Batch batch) {
         update(Gdx.graphics.getDeltaTime());
-        super.draw(batch);
-        proyectilManager.draw(batch); 
+        super.draw(batch); 
+        proyectilManager.draw(batch);
+
     }
 
     public void dispose() {
@@ -64,11 +69,19 @@ public class Jugador extends Entidad {
 
     @Override
     public void update(float delta) {
-        actualizarMovimiento();
-        manejarDisparos(delta);
-        actualizarSprite();
-        actualizarCamara();
-        proyectilManager.actualizarProyectiles(delta, enemigos, this);
+    	 if (escudoCoolDown > 0) {
+    		 escudoCoolDown -= delta; 
+    		 opacidad = 0.5f;
+         }
+    	 else {
+             opacidad = 1.0f; 
+    	 }
+    	 setColor(1.0f, 1.0f, 1.0f, opacidad); 
+    	 actualizarMovimiento();
+         manejarDisparos(delta);
+         actualizarSprite();
+         actualizarCamara();
+         proyectilManager.actualizarProyectiles(delta, enemigos, this);
     }
 
     private void actualizarMovimiento() {
@@ -178,10 +191,17 @@ public class Jugador extends Entidad {
     }
     @Override
     public void recibirDaño(int daño) {
-        vidaActual -= daño;
-        if (vidaActual < 0) {
-        	vidaActual = 0; 
+        if (escudoCoolDown <= 0) {
+            vidaActual -= daño;
+            if (vidaActual < 0) {
+                vidaActual = 0; 
+            }
+            escudoCoolDown = escudoCoolDownMaximo; 
         }
+    }
+
+    public float getShieldCooldown() {
+        return escudoCoolDown;
     }
     @Override
     protected void remove() {}
